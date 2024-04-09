@@ -1,0 +1,22 @@
+main:
+  listen:
+    host:
+    port:
+
+  log:
+    error:
+      level:
+      file_path:
+    access:
+      file_path:
+
+apisix:
+  admin_api: 
+  control_api:
+
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  username: root
+  password: denglu0416
+  db: apiboard

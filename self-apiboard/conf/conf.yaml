@@ -1,0 +1,22 @@
+main:
+  listen:
+    host: 0.0.0.0
+    port: 80
+
+  log:
+    error:
+      level: warn
+      file_path: logs/error.log
+    access:
+      file_path: logs/access.log
+
+apisix:
+  admin_api: http://10.252.9.198:45975
+  control_api: 
+
+mysql:
+  host: 10.252.9.198
+  port: 30006
+  username: root
+  password: Denglu0416
+  db: apiboard
