@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -17,14 +18,16 @@ var (
 	ENV           string
 	MysqlConfig   *Mysql
 	ApisixConfig  *Apisix
-	Version       = "3.8.0"
-	ConfigFile    = ""
-	ServerHost    = "0.0.0.0"
-	ServerPort    = 80
-	WorkDir       = "."
-	ErrorLogLevel = "warn"
-	ErrorLogPath  = "logs/error.log"
-	AccessLogPath = "logs/access.log"
+	ServerOption  *ServerConfig
+	Version                     = "3.8.0"
+	ConfigFile                  = ""
+	ServerHost                  = "0.0.0.0"
+	ServerPort                  = 80
+	WorkDir                     = "."
+	ErrorLogLevel               = "warn"
+	ErrorLogPath                = "logs/error.log"
+	AccessLogPath               = "logs/access.log"
+	Timeout       time.Duration = 60 * time.Second
 )
 
 type Listen struct {
@@ -34,11 +37,11 @@ type Listen struct {
 
 type ErrorLog struct {
 	Level    string
-	FilePath string `mapstructure:"file_path"`
+	FilePath string `json:"file_path"`
 }
 
 type AccessLog struct {
-	FilePath string `mapstructure:"file_path"`
+	FilePath string `json:"file_path"`
 }
 
 type Log struct {
@@ -46,14 +49,29 @@ type Log struct {
 	AccessLog AccessLog
 }
 
+type ServerConfig struct {
+	AppName         string        `json:"app_name,omitempty"`
+	BodyLimit       int           `json:"body_limit,omitempty"`
+	Concurrency     int           `json:"concurrency,omitempty"`
+	IdleTimeout     time.Duration `json:"idle_timeout,omitempty"`
+	Network         string        `json:"network,omitempty"`
+	Prefork         bool          `json:"prefork,omitempty"`
+	ReadBufferSize  int           `json:"read_buffer_size,omitempty"`
+	ReadTimeout     time.Duration `json:"read_timeout,omitempty"`
+	WriteBufferSize int           `json:"write_buffer_size,omitempty"`
+	WriteTimeout    time.Duration `json:"write_timeout,omitempty"`
+}
+
 type Main struct {
-	Listen Listen
-	Log    Log
+	Listen       Listen
+	Log          Log
+	ServerConfig ServerConfig
 }
 
 type Apisix struct {
-	AdminAPI   string `mapstructure:"admin_api"`
-	ControlAPI string `mapstructure:"control_api"`
+	AdminAPI   string `json:"admin_api"`
+	ControlAPI string `json:"control_api"`
+	Token      string `json:"token"`
 }
 
 type Mysql struct {
@@ -117,6 +135,13 @@ func setupConfig() {
 		ErrorLogPath = config.Main.Log.ErrorLog.FilePath
 	}
 
+	if config.Apisix.AdminAPI == "" {
+		panic("Not found apisix admin api")
+	}
+	if config.Apisix.Token == "" {
+		panic("Not found apisix admin token")
+	}
+
 	if !filepath.IsAbs(ErrorLogPath) {
 		// 这里没有做windows路径判断
 		ErrorLogPath, err = filepath.Abs(filepath.Join(WorkDir, ErrorLogPath))
@@ -134,7 +159,7 @@ func setupConfig() {
 
 	ApisixConfig = &config.Apisix
 	MysqlConfig = &config.Mysql
-
+	ServerOption = &config.Main.ServerConfig
 }
 
 func setupEnv() {

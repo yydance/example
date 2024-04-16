@@ -10,9 +10,23 @@ main:
     access:
       file_path: logs/access.log
 
+  server_config:
+    app_name: ""
+    body_limit: 4096000
+    concurrency: 10000
+    network: "tcp"
+    prefork: false
+    read_buffer_size: 4096
+    read_timeout: 5000
+    write_buffer_size: 4096
+    write_timeout: 300000
+    idle_timeout:
+
+
 apisix:
   admin_api: http://10.252.9.198:45975
   control_api: 
+  token: 5b54e554ed45426d9af01528b33661f1
 
 mysql:
   host: 10.252.9.198

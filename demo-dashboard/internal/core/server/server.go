@@ -2,25 +2,24 @@ package server
 
 import (
 	"context"
+	"demo-dashboard/internal/conf"
+	"demo-dashboard/internal/log"
+	"demo-dashboard/internal/utils"
 	"fmt"
-	"net/http"
 	"os"
-	"self-apiboard/internal/conf"
-	"self-apiboard/internal/log"
-	"self-apiboard/internal/utils"
+	"strconv"
 	"time"
 
+	"github.com/gofiber/fiber/v3"
 	"github.com/spf13/viper"
 )
 
 type server struct {
-	server  *http.Server
-	options *Options
+	server  *fiber.App
+	options *conf.ServerConfig
 }
 
-type Options struct{}
-
-func NewServer(options *Options) (*server, error) {
+func NewServer(options *conf.ServerConfig) (*server, error) {
 	return &server{options: options}, nil
 }
 
@@ -32,18 +31,20 @@ func (s *server) Start(errSig chan error) {
 	}
 	s.printInfo()
 
-	log.Infof("The apisix dashboard is listening on %s", s.server.Addr)
+	log.Infof("The apisix dashboard is listening on %s", conf.ServerHost)
 	go func() {
-		err := s.server.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
-			log.Errorf("listen and serv fail: %s", err)
+		err := s.server.Listen(conf.ServerHost + ":" + strconv.Itoa(conf.ServerPort))
+		if err != nil {
+			log.Errorf("failed to listen: %s", err)
 			errSig <- err
 		}
 	}()
 }
 
 func (s *server) Stop() {
-	s.shutdownServer(s.server)
+	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+	defer cancel()
+	s.server.ShutdownWithContext(ctx)
 }
 
 func (s *server) init() error {
@@ -51,17 +52,6 @@ func (s *server) init() error {
 	s.setupAPI()
 
 	return nil
-}
-
-func (s *server) shutdownServer(server *http.Server) {
-	if server != nil {
-		ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
-		defer cancel()
-
-		if err := server.Shutdown(ctx); err != nil {
-			log.Errorf("shutting down server error: %s", err)
-		}
-	}
 }
 
 func (s *server) printInfo() {

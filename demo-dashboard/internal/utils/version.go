@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"demo-dashboard/internal/conf"
 	"fmt"
 	"os"
-	"self-apiboard/internal/conf"
 )
 
 var version = conf.Version

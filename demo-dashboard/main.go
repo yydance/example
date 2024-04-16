@@ -1,6 +1,6 @@
 package main
 
-import "self-apiboard/cmd"
+import "demo-dashboard/cmd"
 
 func main() {
 	cmd.Execute()

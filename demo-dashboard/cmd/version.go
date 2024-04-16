@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"self-apiboard/internal/utils"
+	"demo-dashboard/internal/utils"
 
 	"github.com/spf13/cobra"
 )

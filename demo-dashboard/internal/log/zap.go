@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"self-apiboard/internal/conf"
+	"demo-dashboard/internal/conf"
 )
 
 var logger *zap.SugaredLogger
