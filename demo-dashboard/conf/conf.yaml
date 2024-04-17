@@ -22,6 +22,16 @@ main:
     write_timeout: 300000
     idle_timeout:
 
+etcd:
+  endpoints:
+    - 10.252.9.200:42319
+  username: "root"
+  password: "Eeo@123"
+  mtl:
+    key_file:
+    cert_file:
+    ca_file:
+  prefix: /apisix_dev
 
 apisix:
   admin_api: http://10.252.9.198:45975

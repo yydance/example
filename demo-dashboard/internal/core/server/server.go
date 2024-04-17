@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 )
 

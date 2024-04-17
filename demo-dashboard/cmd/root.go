@@ -41,4 +41,6 @@ func manageAPI() error {
 
 	app := routers.InitRouter()
 	app.Listen(fmt.Sprintf(":%d", conf.ServerPort))
+
+	return nil
 }

@@ -19,6 +19,7 @@ var (
 	MysqlConfig   *Mysql
 	ApisixConfig  *Apisix
 	ServerOption  *ServerConfig
+	ETCDConfig    *Etcd
 	Version                     = "3.8.0"
 	ConfigFile                  = ""
 	ServerHost                  = "0.0.0.0"
@@ -82,10 +83,25 @@ type Mysql struct {
 	DB       string
 }
 
+type MTLS struct {
+	CaFile   string `json:"ca_file"`
+	KeyFile  string `json:"key_file"`
+	CertFile string `json:"cert_file"`
+}
+
+type Etcd struct {
+	Endpoints []string
+	Username  string
+	Password  string
+	Prefix    string
+	MTLS      *MTLS
+}
+
 type Config struct {
 	Main   Main
 	Apisix Apisix
 	Mysql  Mysql
+	Etcd   Etcd
 }
 
 func InitConf() {
@@ -116,6 +132,10 @@ func setupConfig() {
 	err := viper.Unmarshal(&config)
 	if err != nil {
 		panic(fmt.Sprintf("fail to unmarshall configuration: %s, err: %s", ConfigFile, err.Error()))
+	}
+
+	if len(config.Etcd.Endpoints) > 0 {
+		initEtcdConfig(config.Etcd)
 	}
 
 	if config.Main.Listen.Host != "" {
@@ -160,6 +180,26 @@ func setupConfig() {
 	ApisixConfig = &config.Apisix
 	MysqlConfig = &config.Mysql
 	ServerOption = &config.Main.ServerConfig
+}
+
+func initEtcdConfig(conf Etcd) {
+	var endpoints = []string{"127.0.0.1:2379"}
+	if len(conf.Endpoints) > 0 {
+		endpoints = conf.Endpoints
+	}
+
+	prefix := "/apisix"
+	if len(conf.Prefix) > 0 {
+		prefix = conf.Prefix
+	}
+
+	ETCDConfig = &Etcd{
+		Endpoints: endpoints,
+		Username:  conf.Username,
+		Password:  conf.Password,
+		MTLS:      conf.MTLS,
+		Prefix:    prefix,
+	}
 }
 
 func setupEnv() {
