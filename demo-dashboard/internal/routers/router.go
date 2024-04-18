@@ -5,13 +5,14 @@ import (
 	"demo-dashboard/internal/handler/route"
 	"demo-dashboard/internal/handler/service"
 	"demo-dashboard/internal/handler/upstream"
-	"time"
 
+	"github.com/gofiber/contrib/fiberzap/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func InitRouter() *fiber.App {
@@ -26,15 +27,17 @@ func InitRouter() *fiber.App {
 		WriteBufferSize: conf.ServerOption.WriteBufferSize,
 	})
 
+	logger, _ := zap.NewProduction()
+
 	app.Use(recover.New(recover.Config{
 		EnableStackTrace: true,
 	}))
 
 	app.Use(requestid.New())
-	app.Use(logger.New(logger.Config{
-		Format:     "[${locals:requestid}] ${time} ip: ${ip} status: ${status} pid: ${pid} method: ${method} path: ${path} queryParams: ${queryParams} body: ${body} resBody: ${resBody}\n error: ${error}\n",
-		TimeFormat: time.RFC3339Nano,
-		TimeZone:   "Asia/Shanghai",
+	app.Use(fiberzap.New(fiberzap.Config{
+		Logger: logger,
+		Fields: []string{"requestid", "time", "pid", "status", "method", "path", "latencry", "url"},
+		Levels: []zapcore.Level{zapcore.FatalLevel, zapcore.PanicLevel, zapcore.ErrorLevel, zapcore.WarnLevel, zapcore.InfoLevel, zapcore.DebugLevel},
 	}))
 	// monitor
 	app.Get("/metrics", monitor.New())

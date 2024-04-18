@@ -1,4 +1,4 @@
-create database if not exists demo-dashboard;
+create database if not exists demo_dashboard;
 
 CREATE TABLE IF NOT EXISTS plugin_config (
 `name`   JSON      NOT NULL   DEFAULT ''       COMMENT '插件模版名称',

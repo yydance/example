@@ -1,74 +1,47 @@
 package log
 
 import (
-	"net/url"
 	"os"
 
+	fiberlog "github.com/gofiber/fiber/v2/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"demo-dashboard/internal/conf"
 )
 
-var logger *zap.SugaredLogger
+const (
+	AccessLevel fiberlog.Level = iota - 1
+	DebugLevel
+	InfoLevel
+	WarnLevel
+	ErrorLevel
+	PanicLevel
+	FatalLevel
+)
 
-func InitLogger() {
-	logger = GetLogger(ErrorLog)
-}
-
-func GetLogger(logType Type) *zap.SugaredLogger {
-	_ = zap.RegisterSink("winfile", newWinFileSink)
-
-	skip := 2
-	writeSyncer := fileWriter(logType)
-	encoder := getEncoder(logType)
-	logLevel := getLogLevel()
-	if logType == AccessLog {
-		logLevel = zapcore.InfoLevel
-		skip = 0
-	}
-
-	core := zapcore.NewCore(encoder, writeSyncer, logLevel)
-
-	zapLogger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(skip))
-
-	return zapLogger.Sugar()
-}
-
-func getLogLevel() zapcore.LevelEnabler {
-	level := zapcore.WarnLevel
+func getLogLevel() fiberlog.Level {
+	level := WarnLevel
 	switch conf.ErrorLogLevel {
 	case "debug":
-		level = zapcore.DebugLevel
+		level = DebugLevel
 	case "info":
-		level = zapcore.InfoLevel
+		level = InfoLevel
 	case "warn":
-		level = zapcore.WarnLevel
+		level = WarnLevel
 	case "error":
-		level = zapcore.ErrorLevel
+		level = ErrorLevel
 	case "panic":
-		level = zapcore.PanicLevel
+		level = PanicLevel
 	case "fatal":
-		level = zapcore.FatalLevel
+		level = FatalLevel
 	}
 	return level
 }
 
-func getEncoder(logType Type) zapcore.Encoder {
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-
-	if logType == AccessLog {
-		encoderConfig.LevelKey = zapcore.OmitKey
-	}
-
-	return zapcore.NewConsoleEncoder(encoderConfig)
-}
-
-func fileWriter(logType Type) zapcore.WriteSyncer {
+func fileWriter(logType fiberlog.Level) zapcore.WriteSyncer {
 	logPath := conf.ErrorLogPath
-	if logType == AccessLog {
+	if logType == AccessLevel {
 		logPath = conf.AccessLogPath
 	}
 	//standard output
@@ -84,16 +57,4 @@ func fileWriter(logType Type) zapcore.WriteSyncer {
 		panic(err)
 	}
 	return writer
-}
-
-func getZapFields(logger *zap.SugaredLogger, fields []any) *zap.SugaredLogger {
-	if len(fields) == 0 {
-		return logger
-	}
-
-	return logger.With(fields)
-}
-
-func newWinFileSink(u *url.URL) (zap.Sink, error) {
-	return os.OpenFile(u.Path[1:], os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 }
