@@ -29,3 +29,17 @@ func init() {
 		Password: conf.MysqlConfig.Password,
 	})
 }
+
+func initMysqlConfig(table string) mysql.Config {
+	cfg := mysql.Config{
+		Host:     conf.MysqlConfig.Host,
+		Port:     conf.MysqlConfig.Port,
+		Database: conf.MysqlConfig.DB,
+		Username: conf.MysqlConfig.Username,
+		Password: conf.MysqlConfig.Password,
+		Table:    table,
+		Reset:    false,
+	}
+
+	return cfg
+}
