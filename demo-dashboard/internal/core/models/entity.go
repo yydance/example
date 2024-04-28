@@ -1,7 +1,7 @@
-package entity
+package models
 
 type BaseInfo struct {
-	ID         any   `json:"id"`
+	ID         any   `json:"id" gorm:"primaryKey"`
 	CreateTime int64 `json:"create_time,omitempty"`
 	UpdateTime int64 `json:"update_time,omitempty"`
 }
