@@ -1,33 +1,90 @@
 package upstream
 
 import (
-	"demo-dashboard/internal/conf"
+	"demo-dashboard/internal/core/models"
 	"demo-dashboard/internal/handler"
-	"demo-dashboard/internal/log"
-	"fmt"
+	"demo-dashboard/internal/utils"
+	"demo-dashboard/internal/utils/gvalidator"
+	"strings"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
 )
 
+/*
 var (
 	client = resty.New()
-	url    = fmt.Sprintf("%s/apisix/admin/upstreams", conf.ApisixConfig.AdminAPI)
+	url = fmt.Sprintf("%s/apisix/admin/upstreams", conf.ApisixConfig.AdminAPI)
 )
+*/
+
+type Page struct {
+	PageSize int `json:"page_size" validate:"required,page_size" default:"10"`
+	PageNum  int `json:"page_num" validate:"required,page_num,min=1" default:"1"`
+}
 
 func Get(c *fiber.Ctx) error {
 	appFiber := handler.Fiber{C: c}
 
-	if err := c.Query("id"); err == "" {
-		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, "缺少必须的upstream id", nil)
+	id := c.Params("id")
+	if id == "" {
+		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, "请求缺少ID", nil)
 	}
-	getUrl := fmt.Sprintf("%s/%s", url, c.Query("id"))
-	resp, err := client.R().Get(getUrl)
+	res, err := models.GetUpstreamByID(id)
 	if err != nil {
-		log.Logger.Error(err)
-		return appFiber.Handler(fiber.StatusInternalServerError, fiber.StatusInternalServerError, "获取数据失败", nil)
+		return appFiber.Handler(fiber.StatusInternalServerError, fiber.StatusInternalServerError, "data error", nil)
+	}
+	return appFiber.Handler(fiber.StatusOK, fiber.StatusOK, utils.Success, res)
+}
+
+func GetList(c *fiber.Ctx) error {
+	appFiber := handler.Fiber{C: c}
+	page := Page{
+		PageSize: c.QueryInt("page_size"),
+		PageNum:  c.QueryInt("page_num"),
+	}
+	xvalidator := gvalidator.New()
+	errs := xvalidator.ErrMsgs(page)
+	if len(errs) > 0 {
+		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, strings.Join(errs, " and "), nil)
 	}
 
-	log.Logger.Info(resp)
+	res, err := models.GetUpstreamList(page.PageNum, page.PageSize)
+	if err != nil {
+		return appFiber.Handler(fiber.StatusInternalServerError, fiber.StatusInternalServerError, "获取数据列表失败", nil)
+	}
+	return appFiber.Handler(fiber.StatusOK, fiber.StatusOK, utils.Success, res)
+}
+
+func Put(c *fiber.Ctx) error {
+
 	return nil
+}
+
+func Delete(c *fiber.Ctx) error {
+
+	return nil
+}
+
+func Patch(c *fiber.Ctx) error {
+
+	return nil
+}
+
+func Post(c *fiber.Ctx) error {
+
+	return nil
+}
+
+func Search(c *fiber.Ctx) error {
+	appFiber := handler.Fiber{C: c}
+
+	if c.Params("name") == "" {
+		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, "缺少请求参数name", nil)
+	}
+	res, err := models.GetUpstreamByName(c.Params("name"))
+	if err != nil {
+		return appFiber.Handler(fiber.StatusInternalServerError, fiber.StatusInternalServerError, "获取数据列表失败", nil)
+	}
+
+	return appFiber.Handler(fiber.StatusOK, fiber.StatusOK, "success", res)
 }

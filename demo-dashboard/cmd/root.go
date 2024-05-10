@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"demo-dashboard/internal/conf"
+	"demo-dashboard/internal/core/models"
 	"demo-dashboard/internal/log"
 	"demo-dashboard/internal/routers"
-	"demo-dashboard/internal/storage"
 
 	"github.com/spf13/cobra"
 )
@@ -73,7 +73,7 @@ func etcdConnectionChecker() context.CancelFunc {
 	unavailableTimes := 0
 
 	go func() {
-		etcdClient := storage.EtcdStorageV3.Conn()
+		etcdClient := models.EtcdStorageV3.Conn()
 		for {
 			select {
 			case <-time.Tick(10 * time.Second):

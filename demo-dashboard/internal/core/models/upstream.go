@@ -2,6 +2,7 @@ package models
 
 import (
 	"demo-dashboard/internal/log"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -35,7 +36,8 @@ func GetUpstreamList(pageNum int, pageSize int) (any, error) {
 	tx := initCtx(10 * time.Second)
 
 	var data []*Upstream
-	err := tx.Where(&Upstream{}).Offset(pageNum).Limit(pageSize).Find(data).Error
+	var maps Upstream
+	err := tx.Where(&maps).Offset(pageNum).Limit(pageSize).Find(data).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -54,17 +56,24 @@ func UpdateUpstream(id int) error {
 	return nil
 }
 
-func GetUpstreamByID(id int) error {
+func GetUpstreamByID(id string) (any, error) {
 	CloseDB()
 	tx := initCtx(5 * time.Second)
-	err := tx.Where("id = ?", id).First(&Upstream{}).Error
+	var data Upstream
+	err := tx.Where("id = ?", id).First(&data).Error
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return data, nil
 }
 
-func GetUpstreamByName(name string) error {
-
-	return nil
+func GetUpstreamByName(name string) (any, error) {
+	CloseDB()
+	tx := initCtx(5 * time.Second)
+	var data []*Upstream
+	err := tx.Where("name LIKE ?", fmt.Sprintf("%%%s%%", name)).Find(data).Error
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }

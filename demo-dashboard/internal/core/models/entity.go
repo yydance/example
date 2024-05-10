@@ -1,7 +1,9 @@
 package models
 
+import "gorm.io/gorm"
+
 type BaseInfo struct {
-	ID         any   `json:"id" gorm:"primaryKey"`
+	ID         any   `json:"id" gorm:"primaryKey,uniqueIndex:idx_id"`
 	CreateTime int64 `json:"create_time,omitempty"`
 	UpdateTime int64 `json:"update_time,omitempty"`
 }
@@ -25,4 +27,17 @@ type Route struct {
 	Hosts  []string `json:"hosts,omitempty"`
 	Uris   []string `json:"uris,omitempty"`
 	Status bool     `json:"status"`
+}
+
+type User struct {
+	gorm.Model
+	Username string `gorm:"username"`
+	Password string `gorm:"password"`
+	Email    string `gorm:"email"`
+	Project  string `gorm:"project"`
+}
+
+type Project struct {
+	gorm.Model
+	Name string `gorm:"name"`
 }

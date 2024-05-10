@@ -20,7 +20,12 @@ main:
     read_timeout: 5000
     write_buffer_size: 4096
     write_timeout: 300000
-    idle_timeout:
+    idle_timeout: 120
+  
+  jwt: 
+    expired: 86400
+    secret: "secret"
+  api_key: "QPZXkYDY2cXG1vRKfIpwdqzBOpf4G1Zy"
 
 etcd:
   endpoints:

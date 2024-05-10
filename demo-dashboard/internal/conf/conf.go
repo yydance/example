@@ -16,9 +16,9 @@ const (
 
 var (
 	ENV           string
-	MysqlConfig   *Mysql
-	ApisixConfig  *Apisix
-	ServerOption  *ServerConfig
+	MysqlConfig   Mysql
+	ApisixConfig  Apisix
+	ServerOption  ServerConfig
 	ETCDConfig    *Etcd
 	Version                     = "3.8.0"
 	ConfigFile                  = ""
@@ -29,6 +29,7 @@ var (
 	ErrorLogPath                = "logs/error.log"
 	AccessLogPath               = "logs/access.log"
 	Timeout       time.Duration = 60 * time.Second
+	Jwt           JWT
 )
 
 type Listen struct {
@@ -63,10 +64,16 @@ type ServerConfig struct {
 	WriteTimeout    time.Duration `json:"write_timeout,omitempty"`
 }
 
+type JWT struct {
+	Expired int    `json:"expired"`
+	Secret  string `json:"secret"`
+}
+
 type Main struct {
 	Listen       Listen
 	Log          Log
 	ServerConfig ServerConfig
+	Jwt          JWT
 }
 
 type Apisix struct {
@@ -177,9 +184,10 @@ func setupConfig() {
 		}
 	}
 
-	ApisixConfig = &config.Apisix
-	MysqlConfig = &config.Mysql
-	ServerOption = &config.Main.ServerConfig
+	ApisixConfig = config.Apisix
+	MysqlConfig = config.Mysql
+	ServerOption = config.Main.ServerConfig
+	Jwt = config.Main.Jwt
 }
 
 func initEtcdConfig(conf Etcd) {

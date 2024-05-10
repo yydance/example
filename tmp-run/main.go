@@ -2,9 +2,6 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/buger/jsonparser"
-	"github.com/go-resty/resty/v2"
 )
 
 var (
@@ -23,32 +20,40 @@ type Upstream struct {
 }
 
 func main() {
-	client := resty.New()
-	resp, err := client.R().SetHeader("X-API-KEY", apisix_token).Get(upstream_url)
-	if err != nil {
-		panic(err)
+	/*
+		client := resty.New()
+		resp, err := client.R().SetHeader("X-API-KEY", apisix_token).Get(upstream_url)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%v\n", resp)
+
+		//ids, _, _, err := jsonparser.Get(resp.Body(), "list")
+		//if err != nil {
+		//	panic(err)
+		//}
+		fmt.Println("********************")
+
+		//此处，取到数据直接插入MySQL，每次一行
+		_, _ = jsonparser.ArrayEach(resp.Body(), func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+			//fmt.Printf("each, value: %s\t Type: %s\n", string(value), dataType)
+			fmt.Println("---------------")
+			id, _ := jsonparser.GetString(value, "value", "id")
+			name, _ := jsonparser.GetString(value, "value", "name")
+			upstream_type, _ := jsonparser.GetString(value, "value", "type")
+			desc, _ := jsonparser.GetString(value, "value", "desc")
+			create_time, _ := jsonparser.GetInt(value, "value", "create_time")
+
+			fmt.Printf("id: %s, name: %s, upstream_type: %s, desc: %s, create_time: %d\n", id, name, upstream_type, desc, create_time)
+			//fmt.Printf("each, value: %s\t Type: %s\n", string(value), dataType)
+		}, "list")
+	*/
+	errMsgs := make([]string, 0)
+	if len(errMsgs) == 0 {
+		fmt.Print("nil\n")
 	}
-	fmt.Printf("%v\n", resp)
-
-	//ids, _, _, err := jsonparser.Get(resp.Body(), "list")
-	//if err != nil {
-	//	panic(err)
-	//}
-	fmt.Println("********************")
-
-	//此处，取到数据直接插入MySQL，每次一行
-	_, _ = jsonparser.ArrayEach(resp.Body(), func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		//fmt.Printf("each, value: %s\t Type: %s\n", string(value), dataType)
-		fmt.Println("---------------")
-		id, _ := jsonparser.GetString(value, "value", "id")
-		name, _ := jsonparser.GetString(value, "value", "name")
-		upstream_type, _ := jsonparser.GetString(value, "value", "type")
-		desc, _ := jsonparser.GetString(value, "value", "desc")
-		create_time, _ := jsonparser.GetInt(value, "value", "create_time")
-
-		fmt.Printf("id: %s, name: %s, upstream_type: %s, desc: %s, create_time: %d\n", id, name, upstream_type, desc, create_time)
-		//fmt.Printf("each, value: %s\t Type: %s\n", string(value), dataType)
-	}, "list")
-
+	fmt.Printf("%v\n", errMsgs)
+	test := fmt.Sprintf("%%%s%%", "name")
+	fmt.Println(test)
 	//fmt.Println(string(ids))
 }

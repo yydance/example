@@ -26,7 +26,7 @@ func init() {
 		Password:    conf.ETCDConfig.Password,
 	})
 
-	Db = initMysqlDB(*conf.MysqlConfig)
+	Db = initMysqlDB(conf.MysqlConfig)
 	Db.AutoMigrate(&Upstream{}, &Service{}, &Route{})
 }
 
