@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -168,6 +169,7 @@ func setupConfig() {
 	if config.Apisix.Token == "" {
 		panic("Not found apisix admin token")
 	}
+	config.Apisix.AdminAPI = strings.TrimSuffix(config.Apisix.AdminAPI, "/")
 
 	if !filepath.IsAbs(ErrorLogPath) {
 		// 这里没有做windows路径判断

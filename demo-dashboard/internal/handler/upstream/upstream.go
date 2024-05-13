@@ -1,11 +1,16 @@
 package upstream
 
 import (
+	"demo-dashboard/internal/conf"
 	"demo-dashboard/internal/core/models"
 	"demo-dashboard/internal/handler"
+	"demo-dashboard/internal/handler/entity"
+	"demo-dashboard/internal/log"
 	"demo-dashboard/internal/utils"
 	"demo-dashboard/internal/utils/gvalidator"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -55,22 +60,79 @@ func GetList(c *fiber.Ctx) error {
 	return appFiber.Handler(fiber.StatusOK, fiber.StatusOK, utils.Success, res)
 }
 
-func Put(c *fiber.Ctx) error {
+func Post(c *fiber.Ctx) error {
+	appFiber := handler.Fiber{C: c}
+	upstream := &entity.Upstream{}
+	if err := c.BodyParser(upstream); err != nil {
+		log.Logger.Error(err)
+		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, fiber.ErrBadRequest.Error(), nil)
+	}
+	xvalidator := gvalidator.New()
+	errs := xvalidator.ErrMsgs(upstream)
+	if len(errs) > 0 {
+		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, strings.Join(errs, " and "), nil)
+	}
 
-	return nil
+	fagent := fiber.Post(entity.UpstreamURL)
+	fagent.Set("X-API-KEY", conf.ApisixConfig.Token)
+	fagent.Timeout(5 * time.Second)
+	fagent.Body(c.Body())
+	code, body, err := fagent.String()
+	if err != nil {
+		return c.Status(code).JSON(fiber.Map{
+			"errs": err,
+		})
+	}
+	return appFiber.Handler(code, code, "success", body)
+}
+
+func Put(c *fiber.Ctx) error {
+	appFiber := handler.Fiber{C: c}
+	if c.Params("id") == "" {
+		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, fiber.ErrBadRequest.Error(), nil)
+	}
+	upstream := &entity.Upstream{}
+	if err := c.BodyParser(upstream); err != nil {
+		log.Logger.Error(err)
+		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, fiber.ErrBadRequest.Error(), nil)
+	}
+	xvalidator := gvalidator.New()
+	errs := xvalidator.ErrMsgs(upstream)
+	if len(errs) > 0 {
+		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, strings.Join(errs, " and "), nil)
+	}
+
+	fagent := fiber.Put(fmt.Sprintf("%s/%s", entity.UpstreamURL, c.Params("id")))
+	fagent.Set("X-API-KEY", conf.ApisixConfig.Token)
+	fagent.Timeout(5 * time.Second)
+	fagent.Body(c.Body())
+	code, body, err := fagent.String()
+	if err != nil {
+		return c.Status(code).JSON(fiber.Map{
+			"errs": err,
+		})
+	}
+	return appFiber.Handler(code, code, "success", body)
 }
 
 func Delete(c *fiber.Ctx) error {
-
-	return nil
+	appFiber := handler.Fiber{C: c}
+	if c.Params("id") == "" {
+		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, fiber.ErrBadRequest.Error(), nil)
+	}
+	fagent := fiber.Delete(fmt.Sprintf("%s/%s", entity.UpstreamURL, c.Params("id")))
+	fagent.Set("X-API-KEY", conf.ApisixConfig.Token)
+	fagent.Timeout(5 * time.Second)
+	code, body, err := fagent.String()
+	if err != nil {
+		return c.Status(code).JSON(fiber.Map{
+			"errs": err,
+		})
+	}
+	return appFiber.Handler(code, code, "success", body)
 }
 
 func Patch(c *fiber.Ctx) error {
-
-	return nil
-}
-
-func Post(c *fiber.Ctx) error {
 
 	return nil
 }

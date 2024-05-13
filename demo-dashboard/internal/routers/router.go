@@ -8,6 +8,7 @@ import (
 	"demo-dashboard/internal/handler/upstream"
 	"demo-dashboard/internal/handler/user"
 
+	"github.com/bytedance/sonic"
 	"github.com/gofiber/contrib/fiberzap/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
@@ -27,6 +28,8 @@ func InitRouter() *fiber.App {
 		WriteTimeout:    conf.ServerOption.WriteTimeout,
 		ReadBufferSize:  conf.ServerOption.ReadBufferSize,
 		WriteBufferSize: conf.ServerOption.WriteBufferSize,
+		JSONEncoder:     sonic.Marshal,
+		JSONDecoder:     sonic.Unmarshal,
 	})
 
 	logger, _ := zap.NewProduction()
