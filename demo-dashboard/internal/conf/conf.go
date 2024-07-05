@@ -40,11 +40,11 @@ type Listen struct {
 
 type ErrorLog struct {
 	Level    string
-	FilePath string `json:"file_path"`
+	FilePath string `mapstructure:"file_path"`
 }
 
 type AccessLog struct {
-	FilePath string `json:"file_path"`
+	FilePath string `mapstructure:"file_path"`
 }
 
 type Log struct {
@@ -53,34 +53,34 @@ type Log struct {
 }
 
 type ServerConfig struct {
-	AppName         string        `json:"app_name,omitempty"`
-	BodyLimit       int           `json:"body_limit,omitempty"`
-	Concurrency     int           `json:"concurrency,omitempty"`
-	IdleTimeout     time.Duration `json:"idle_timeout,omitempty"`
-	Network         string        `json:"network,omitempty"`
-	Prefork         bool          `json:"prefork,omitempty"`
-	ReadBufferSize  int           `json:"read_buffer_size,omitempty"`
-	ReadTimeout     time.Duration `json:"read_timeout,omitempty"`
-	WriteBufferSize int           `json:"write_buffer_size,omitempty"`
-	WriteTimeout    time.Duration `json:"write_timeout,omitempty"`
+	AppName         string        `mapstructure:"app_name"`
+	BodyLimit       int           `mapstructure:"body_limit"`
+	Concurrency     int           `mapstructure:"concurrency"`
+	IdleTimeout     time.Duration `mapstructure:"idle_timeout"`
+	Network         string        `mapstructure:"network"`
+	Prefork         bool          `mapstructure:"prefork"`
+	ReadBufferSize  int           `mapstructure:"read_buffer_size"`
+	ReadTimeout     time.Duration `mapstructure:"read_timeout"`
+	WriteBufferSize int           `mapstructure:"write_buffer_size"`
+	WriteTimeout    time.Duration `mapstructure:"write_timeout"`
 }
 
 type JWT struct {
-	Expired int    `json:"expired"`
-	Secret  string `json:"secret"`
+	Expired int    `mapstructure:"expired"`
+	Secret  string `mapstructure:"secret"`
 }
 
 type Main struct {
 	Listen       Listen
 	Log          Log
-	ServerConfig ServerConfig
+	ServerConfig ServerConfig `mapstructure:"server_config"`
 	Jwt          JWT
 }
 
 type Apisix struct {
-	AdminAPI   string `json:"admin_api"`
-	ControlAPI string `json:"control_api"`
-	Token      string `json:"token"`
+	AdminAPI   string `mapstructure:"admin_api"`
+	ControlAPI string `mapstructure:"control_api"`
+	Token      string `mapstructure:"token"`
 }
 
 type Mysql struct {
@@ -92,9 +92,9 @@ type Mysql struct {
 }
 
 type MTLS struct {
-	CaFile   string `json:"ca_file"`
-	KeyFile  string `json:"key_file"`
-	CertFile string `json:"cert_file"`
+	CaFile   string `mapstructure:"ca_file"`
+	KeyFile  string `mapstructure:"key_file"`
+	CertFile string `mapstructure:"cert_file"`
 }
 
 type Etcd struct {
@@ -121,7 +121,7 @@ func setupConfig() {
 	if ConfigFile == "" {
 		ConfigFile = "conf.yaml"
 		if profile := os.Getenv("RUN_PROFILE"); profile != "" {
-			ConfigFile = "conf" + "-" + profile + ".yaml"
+			ConfigFile = "conf" + "." + profile + ".yaml"
 		}
 		viper.SetConfigName(ConfigFile)
 		viper.SetConfigType("yaml")

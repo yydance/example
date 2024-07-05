@@ -6,7 +6,6 @@ import (
 	"demo-dashboard/internal/handler/route"
 	"demo-dashboard/internal/handler/service"
 	"demo-dashboard/internal/handler/upstream"
-	"demo-dashboard/internal/handler/user"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/contrib/fiberzap/v2"
@@ -30,6 +29,7 @@ func InitRouter() *fiber.App {
 		WriteBufferSize: conf.ServerOption.WriteBufferSize,
 		JSONEncoder:     sonic.Marshal,
 		JSONDecoder:     sonic.Unmarshal,
+		Prefork:         conf.ServerOption.Prefork,
 	})
 
 	logger, _ := zap.NewProduction()
@@ -38,10 +38,10 @@ func InitRouter() *fiber.App {
 		EnableStackTrace: true,
 	}))
 
-	app.Use(requestid.New())
+	app.Use(requestid.New(requestid.Config{ContextKey: "requestId"}))
 	app.Use(fiberzap.New(fiberzap.Config{
 		Logger: logger,
-		Fields: []string{"requestid", "time", "pid", "status", "method", "path", "latencry", "url"},
+		Fields: []string{"time", "pid", "status", "method", "path", "latencry", "url", "requestId"},
 		Levels: []zapcore.Level{zapcore.FatalLevel, zapcore.PanicLevel, zapcore.ErrorLevel, zapcore.WarnLevel, zapcore.InfoLevel, zapcore.DebugLevel},
 	}))
 
@@ -57,8 +57,8 @@ func InitRouter() *fiber.App {
 
 	api_admin := app.Group("/apisix/admin")
 	{
-		api_admin.Post("/user/signin", user.SignIn)
-		api_admin.Post("user/signout", user.SignOut)
+		//	api_admin.Post("/user/signin", user.SignIn)
+		//	api_admin.Post("user/signout", user.SignOut)
 	}
 
 	{

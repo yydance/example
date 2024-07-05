@@ -18,7 +18,8 @@ var (
 	Db            *gorm.DB
 )
 
-func init() {
+func InitStorage() {
+
 	EtcdStorageV3 = etcd.New(etcd.Config{
 		Endpoints:   conf.ETCDConfig.Endpoints,
 		DialTimeout: 10 * time.Second,
@@ -27,7 +28,17 @@ func init() {
 	})
 
 	Db = initMysqlDB(conf.MysqlConfig)
-	Db.AutoMigrate(&Upstream{}, &Service{}, &Route{})
+	Db.AutoMigrate(
+		&UpstreamTLS{},
+		&UpstreamKeepalivePool{},
+		&Timeout{},
+		&Upstream{},
+		&Service{},
+		//&Route{},
+		&Consumer{},
+		&GlobalPlugins{},
+		&ServerInfo{},
+	)
 }
 
 func initMysqlDB(conf conf.Mysql) *gorm.DB {
@@ -65,3 +76,47 @@ func CloseDB() {
 	}
 	defer sqlDB.Close()
 }
+
+/*
+func JsonParser(dType string, data []byte) any {
+	var (
+		create_time int64
+		update_time int64
+		id          any
+		name        string
+		utype       string
+		hosts []string
+		uris []string
+		status bool
+		desc string
+	)
+	_, err := jsonparser.ArrayEach(data, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+		create_time, _ = jsonparser.GetInt(value, "create_time")
+		update_time, _ = jsonparser.GetInt(data, "update_time")
+		id, _ = jsonparser.GetString(data, "id")
+		name, _ = jsonparser.GetString(data, "name")
+		switch dType {
+		case "upstream":
+			utype, _ = jsonparser.GetString(data, "type")
+		case "route":
+			status, _ = jsonparser.GetBoolean(data, "status")
+			uris, _ = jsonparser.Get()
+		}
+
+	})
+
+	if err != nil {
+		log.Logger.Errorf("%s", err)
+	}
+
+	return Upstream{
+		BaseInfo: BaseInfo{
+			ID:         id,
+			CreateTime: create_time,
+			UpdateTime: update_time,
+		},
+		Name: name,
+		Type: utype,
+	}
+}
+*/

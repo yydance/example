@@ -42,6 +42,7 @@ func Execute() {
 
 func manageAPI() error {
 	conf.InitConf()
+	models.InitStorage()
 
 	errSig := make(chan error, 5)
 	app := routers.InitRouter()

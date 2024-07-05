@@ -11,7 +11,7 @@ main:
       file_path: logs/access.log
 
   server_config:
-    app_name: ""
+    app_name: "apisix dashboard"
     body_limit: 4096000
     concurrency: 10000
     network: "tcp"
@@ -29,9 +29,9 @@ main:
 
 etcd:
   endpoints:
-    - 10.252.9.200:42319
+    - 10.252.9.200:30900
   username: "root"
-  password: "Eeo@123"
+  password: "Eeo@123#"
   mtl:
     key_file:
     cert_file:

@@ -62,7 +62,7 @@ func GetList(c *fiber.Ctx) error {
 
 func Post(c *fiber.Ctx) error {
 	appFiber := handler.Fiber{C: c}
-	upstream := &entity.Upstream{}
+	upstream := &models.Upstream{}
 	if err := c.BodyParser(upstream); err != nil {
 		log.Logger.Error(err)
 		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, fiber.ErrBadRequest.Error(), nil)
@@ -91,7 +91,7 @@ func Put(c *fiber.Ctx) error {
 	if c.Params("id") == "" {
 		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, fiber.ErrBadRequest.Error(), nil)
 	}
-	upstream := &entity.Upstream{}
+	upstream := &models.Upstream{}
 	if err := c.BodyParser(upstream); err != nil {
 		log.Logger.Error(err)
 		return appFiber.Handler(fiber.StatusBadRequest, fiber.StatusBadRequest, fiber.ErrBadRequest.Error(), nil)

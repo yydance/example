@@ -29,6 +29,7 @@ type UpstreamKeepalivePool struct {
 	Requests    int `json:"requests,omitempty"`
 }
 
+/*
 type Upstream struct {
 	Name          string                 `json:"name,omitempty"`
 	Type          string                 `json:"type,omitempty"`
@@ -49,3 +50,4 @@ type Upstream struct {
 	TLS           *UpstreamTLS           `json:"tls,omitempty"`
 	KeepalivePool *UpstreamKeepalivePool `json:"keepalive_pool,omitempty"`
 }
+*/

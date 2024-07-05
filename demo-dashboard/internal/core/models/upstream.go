@@ -1,13 +1,13 @@
 package models
 
 import (
-	"demo-dashboard/internal/log"
 	"fmt"
 	"time"
 
 	"gorm.io/gorm"
 )
 
+/*
 func CreateUpstream(id, name, upstream_type, desc string, create_time, update_time int64) error {
 	CloseDB()
 	tx := initCtx(10 * time.Second)
@@ -30,6 +30,7 @@ func CreateUpstream(id, name, upstream_type, desc string, create_time, update_ti
 	return nil
 
 }
+*/
 
 func GetUpstreamList(pageNum int, pageSize int) (any, error) {
 	CloseDB()

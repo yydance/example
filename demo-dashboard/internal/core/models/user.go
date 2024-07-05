@@ -1,7 +1,6 @@
 package models
 
 import (
-	"strconv"
 	"time"
 
 	"gorm.io/gorm"
@@ -37,6 +36,7 @@ func UserEdit(id int) error {
 	return nil
 }
 
+/*
 func (u User) Info() (any, error) {
 	CloseDB()
 	tx := initCtx(5 * time.Second)
@@ -57,6 +57,7 @@ func (u User) Info() (any, error) {
 	}
 	return data, nil
 }
+*/
 
 func UserToken() (any, error) {
 
