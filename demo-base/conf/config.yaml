@@ -1,0 +1,62 @@
+server:
+  listen:
+    host: 0.0.0.0
+    port: 8080
+  # api_key: "QPZXkYDY2cXG1vRKfIpwdqzBOpf4G1Zy"
+  run_mode: "dev"
+
+  log:
+    level: "debug"
+    error_path: "./logs/error.log"
+    access_path: "./logs/access.log"
+    max_size: 100
+    max_age: 30
+    max_backups: 3
+    compress: true
+    local_time: true
+    json: true
+
+  # prometheus:
+    # enabled: false
+    # path: "/metrics"
+
+  # sentry:
+    # enabled: false
+  
+  jwt:
+    secret: "secret"
+    expired: 3600
+    
+  cors:
+    enabled: false
+    allow_origins: ["*"]
+    allow_methods: ["GET", "POST", "PUT", "DELETE"]
+    allow_headers: ["Content-Type", "Authorization"]
+    expose_headers: ["Content-Type", "Authorization"]
+    allow_credentials: false
+    max_age: 0
+
+  fiber_config:
+    app_name: "demo-base"
+    body_limit: 409600
+    concurrent: 1000
+    network: "tcp"
+    prefork: false
+    read_buffer_size: 4096
+    read_timeout: 5000
+    write_buffer_size: 4096
+    write_timeout: 30000
+    idle_timeout: 120
+  
+database:
+  mysql:
+    host: "10.252.9.198"
+    port: 30006
+    user: "root"
+    password: "Denglu0416"
+    db: "demo_base"
+
+  # redis:
+
+  # etcd:
+  
