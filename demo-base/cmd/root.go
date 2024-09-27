@@ -29,7 +29,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&conf.ConfigFile, "config", "c", "config file (default is ./conf/config.yaml)")
+	rootCmd.PersistentFlags().StringVar(&conf.ConfigFile, "config", "", "config file (default is ./conf/config.yaml)")
 	//rootCmd.PersistentFlags().StringVar(&conf.WorkDir, "workdir", "w", "workdir path (default is ./)")
 	rootCmd.AddCommand(&cobra.Command{
 		Use:   "version",
@@ -45,7 +45,7 @@ func mainCmd() error {
 
 	errSig := make(chan error, 2)
 	app := routers.InitRouter()
-	err := app.Listen(fmt.Sprintf(":%d", conf.ServerConfig.Listen.Port))
+	err := app.Listen(fmt.Sprintf(":%s", conf.ServerConfig.Listen.Port))
 	if err != nil {
 		errSig <- err
 	}

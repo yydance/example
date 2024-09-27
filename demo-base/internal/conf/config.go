@@ -9,7 +9,7 @@ import (
 
 var (
 	RunMode    = ""
-	ConfigFile = "conf/config.yaml"
+	ConfigFile = "./conf/config.yaml"
 	//WorkDir                  = "."
 	Timeout      time.Duration = 10 * time.Second
 	Version                    = "0.0.1"
@@ -36,7 +36,7 @@ type Server struct {
 
 type Listen struct {
 	Host string `mapstructure:"host"`
-	Port int    `mapstructure:"port"`
+	Port string `mapstructure:"port"`
 }
 
 type Log struct {
@@ -91,7 +91,7 @@ func InitConfig() {
 
 func setupConfig() {
 	if ConfigFile == "" {
-		ConfigFile = "conf/config.yaml"
+		ConfigFile = "./conf/config.yaml"
 	}
 	viper.SetConfigFile(ConfigFile)
 
@@ -109,4 +109,5 @@ func setupConfig() {
 	FiberConfig = config.Server.FiberConfig
 	CorsConfig = config.Server.Cors
 	LogConfig = config.Server.Log
+	ServerConfig = config.Server
 }

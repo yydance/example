@@ -3,6 +3,7 @@ package routers
 import (
 	"demo-base/internal/conf"
 	"demo-base/internal/utils/logger"
+	"time"
 
 	"demo-base/internal/handler/system"
 
@@ -18,18 +19,19 @@ import (
 
 func InitRouter() *fiber.App {
 	app := fiber.New(fiber.Config{
-		AppName:         conf.FiberConfig.AppName,
-		ReadTimeout:     conf.FiberConfig.ReadTimeout,
-		WriteTimeout:    conf.FiberConfig.WriteTimeout,
-		ReadBufferSize:  conf.FiberConfig.ReadBufferSize,
-		WriteBufferSize: conf.FiberConfig.WriteBufferSize,
-		Concurrency:     conf.FiberConfig.Concurrent,
-		Prefork:         conf.FiberConfig.Prefork,
-		IdleTimeout:     conf.FiberConfig.IdleTimeout,
-		Network:         conf.FiberConfig.Network,
-		BodyLimit:       conf.FiberConfig.BodyLimit,
-		JSONEncoder:     sonic.Marshal,
-		JSONDecoder:     sonic.Unmarshal,
+		AppName:               conf.FiberConfig.AppName,
+		ReadTimeout:           conf.FiberConfig.ReadTimeout * time.Microsecond,
+		WriteTimeout:          conf.FiberConfig.WriteTimeout * time.Microsecond,
+		ReadBufferSize:        conf.FiberConfig.ReadBufferSize,
+		WriteBufferSize:       conf.FiberConfig.WriteBufferSize,
+		Concurrency:           conf.FiberConfig.Concurrent,
+		Prefork:               conf.FiberConfig.Prefork,
+		IdleTimeout:           conf.FiberConfig.IdleTimeout * time.Microsecond,
+		Network:               conf.FiberConfig.Network,
+		BodyLimit:             conf.FiberConfig.BodyLimit,
+		JSONEncoder:           sonic.Marshal,
+		JSONDecoder:           sonic.Unmarshal,
+		DisableStartupMessage: false,
 	})
 
 	app.Use(recover.New(recover.Config{
@@ -50,7 +52,7 @@ func InitRouter() *fiber.App {
 
 	app.Use(fiberzap.New(fiberzap.Config{
 		Fields: []string{"ip", "ips", "host", "path", "method", "protocol", "referer", "url", "route", "ua", "status", "latency", "bytesReceived", "bytesSent", "error", "requestId"},
-		Levels: logger.LogLevel,
+		Levels: logger.LogLevel(),
 	}))
 	app.Use(healthcheck.New(healthcheck.Config{
 		LivenessEndpoint:  "/live",

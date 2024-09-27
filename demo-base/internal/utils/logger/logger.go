@@ -4,32 +4,20 @@ import (
 	"demo-base/internal/conf"
 
 	"github.com/gofiber/contrib/fiberzap/v2"
-	fiberlog "github.com/gofiber/fiber/v2/log"
-	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-var LogLevels = map[string]fiberlog.Level{
-	"debug": fiberlog.LevelDebug,
-	"info":  fiberlog.LevelInfo,
-	"warn":  fiberlog.LevelWarn,
-	"error": fiberlog.LevelError,
-	"fatal": fiberlog.LevelFatal,
-	"panic": fiberlog.LevelPanic,
-}
-
-var LogLevel []zapcore.Level
-var level = conf.LogConfig.Level
-
-switch level {
-case "debug","info":
-	LogLevel = []zapcore.Level{zapcore.InfoLevel, zapcore.WarnLevel, zapcore.ErrorLevel}
-case "warn":
-	LogLevel = []zapcore.Level{zapcore.InfoLevel,zapcore.WarnLevel}
-case "error","fatal","panic":
-	LogLevel = []zapcore.Level{zapcore.ErrorLevel}
-default:
-	LogLevel = []zapcore.Level{zapcore.InfoLevel, zapcore.WarnLevel, zapcore.ErrorLevel}
+func LogLevel() []zapcore.Level {
+	switch conf.LogConfig.Level {
+	case "debug", "info":
+		return []zapcore.Level{zapcore.ErrorLevel, zapcore.WarnLevel, zapcore.InfoLevel}
+	case "warn":
+		return []zapcore.Level{zapcore.WarnLevel, zapcore.InfoLevel}
+	case "error", "fatal", "panic":
+		return []zapcore.Level{zapcore.ErrorLevel}
+	default:
+		return []zapcore.Level{zapcore.InfoLevel, zapcore.WarnLevel, zapcore.ErrorLevel}
+	}
 }
 
 var Logger = fiberzap.NewLogger(fiberzap.LoggerConfig{
@@ -119,4 +107,3 @@ func Fatalw(msg string, keysAndValues ...interface{}) {
 func Panicw(msg string, keysAndValues ...interface{}) {
 	Logger.Panicw(msg, keysAndValues...)
 }
-
