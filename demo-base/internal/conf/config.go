@@ -78,11 +78,15 @@ type Database struct {
 }
 
 type Mysql struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	User     string `mapstructure:"user"`
-	Password string `mapstructure:"password"`
-	Db       string `mapstructure:"db"`
+	Host         string        `mapstructure:"host"`
+	Port         int           `mapstructure:"port"`
+	User         string        `mapstructure:"user"`
+	Password     string        `mapstructure:"password"`
+	Db           string        `mapstructure:"db"`
+	MaxIdleConns int           `mapstructure:"max_idle_connections"`
+	MaxOpenConns int           `mapstructure:"max_open_connections"`
+	MaxLifeTime  time.Duration `mapstructure:"max_life_time"`
+	MaxIdleTime  time.Duration `mapstructure:"max_idle_time"`
 }
 
 func InitConfig() {

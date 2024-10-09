@@ -50,11 +50,15 @@ server:
   
 database:
   mysql:
-    host: "10.252.9.198"
-    port: 30006
+    host: "127.0.0.1"
+    port: 3306
     user: "root"
-    password: "Denglu0416"
+    password: "Denglu%0416"
     db: "demo_base"
+    max_idle_connections: 10
+    max_open_connections: 100
+    max_life_time: 600 #秒
+    max_idle_time: 300 #秒
 
   # redis:
 

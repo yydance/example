@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"demo-base/internal/handler/system"
+	"demo-base/internal/handler/user"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/contrib/fiberzap/v2"
@@ -51,7 +52,7 @@ func InitRouter() *fiber.App {
 	app.Use(requestid.New(requestid.Config{}))
 
 	app.Use(fiberzap.New(fiberzap.Config{
-		Fields: []string{"ip", "ips", "host", "path", "method", "protocol", "referer", "url", "route", "ua", "status", "latency", "bytesReceived", "bytesSent", "error", "requestId"},
+		Fields: []string{"ip", "ips", "method", "protocol", "referer", "url", "route", "ua", "status", "latency", "bytesReceived", "bytesSent", "error", "requestId"},
 		Levels: logger.LogLevel(),
 	}))
 	app.Use(healthcheck.New(healthcheck.Config{
@@ -66,6 +67,14 @@ func InitRouter() *fiber.App {
 		routers.Get("/ping", system.Ping)
 		routers.Get("/health", system.Health)
 		routers.Get("/info", system.Info)
+	}
+	userRouters := routers.Group("/user")
+	{
+		userRouters.Get("/list", user.GetAll)
+		userRouters.Post("/create", user.Create)
+		userRouters.Get("/detail/:id", user.Get)
+		userRouters.Put("/update/:id", user.Update)
+		userRouters.Delete("/delete/:id", user.Delete)
 	}
 
 	return app

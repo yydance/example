@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"demo-base/internal/conf"
+	"demo-base/internal/models"
 	"demo-base/internal/routers"
 	"fmt"
 	"os"
@@ -42,6 +43,7 @@ func init() {
 
 func mainCmd() error {
 	conf.InitConfig()
+	models.InitDB()
 
 	errSig := make(chan error, 2)
 	app := routers.InitRouter()

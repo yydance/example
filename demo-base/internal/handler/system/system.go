@@ -7,12 +7,18 @@ import (
 )
 
 func Ping(c *fiber.Ctx) error {
-	return c.SendString("pong")
+	return c.JSON(fiber.Map{
+		"code": 200,
+		"msg":  "pong",
+		"data": nil,
+	})
 }
 
 func Health(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
-		"status": "ok",
+		"code": 200,
+		"msg":  "ok",
+		"data": nil,
 	})
 }
 
