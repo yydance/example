@@ -1,23 +1,16 @@
 package user
 
 import (
-	"demo-base/internal/models"
-	"demo-base/internal/utils/tools"
+	"demo-base/internal/service"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type Page struct {
-	pageNum   int `json:"page_num" validate:"required,page_num" default:"10"`
-	pageLimit int `json:"page_limit" validate:"required,page_limit" default:"1"`
-}
-
 func Create(c *fiber.Ctx) error {
-	// TODO
-	user := &models.User{}
+	user := service.UserInput{}
 	if err := c.BodyParser(user); err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"msg":  err.Error(),
+			"msg":  "Invalid request body",
 			"code": fiber.StatusBadRequest, // should be customizable code
 			"data": nil,
 		})
@@ -25,38 +18,42 @@ func Create(c *fiber.Ctx) error {
 
 	if err := user.Create(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"msg":  "internal server error",
+			"msg":  err.Error(),
 			"code": fiber.StatusInternalServerError,
 			"data": nil,
 		})
 	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"msg":  "success",
+		"msg":  "Success",
 		"code": fiber.StatusOK,
 		"data": nil,
 	})
 }
 
 func Get(c *fiber.Ctx) error {
-	user := &models.User{}
-	user.ID = tools.StrToUint(c.Params("id"))
-	if err := user.Find(); err != nil {
+	user := service.UserInput{
+		Name: c.Query("name"),
+	}
+
+	u, err := user.Get()
+	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"msg":  "user not found",
+			"msg":  err.Error(),
 			"code": fiber.StatusNotFound,
 			"data": nil,
 		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"msg":  "success",
+		"msg":  "Success",
 		"code": fiber.StatusOK,
-		"data": user,
+		"data": u,
 	})
 }
 
 func Update(c *fiber.Ctx) error {
-	user := &models.User{}
+	user := service.UserInput{}
 	if err := c.BodyParser(user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"msg":  err.Error(),
@@ -64,61 +61,51 @@ func Update(c *fiber.Ctx) error {
 			"data": nil,
 		})
 	}
-	isExist, _ := user.IsExist(user.Name)
-	if isExist {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"code": fiber.StatusBadRequest,
-			"msg":  "user already exists, please use another name",
-			"data": nil,
-		})
-	}
 	if err := user.Update(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"msg":  "internal server error",
+			"msg":  err.Error(),
 			"code": fiber.StatusInternalServerError,
 			"data": nil,
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"msg":  "success",
+		"msg":  "Success",
 		"code": fiber.StatusOK,
 		"data": nil,
 	})
 }
 
-func GetAll(c *fiber.Ctx) error {
-	page := Page{
-		pageNum:   c.QueryInt("page_num"),
-		pageLimit: c.QueryInt("page_limit"),
-	}
-
-	var user *models.User
-	users, err := user.FindByPage(page.pageNum, page.pageLimit)
+func List(c *fiber.Ctx) error {
+	user := service.UserInput{}
+	users, err := user.List(c.QueryInt("page_num"), c.QueryInt("page_size"))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"msg":  "internal server error",
+			"msg":  err.Error(),
 			"code": fiber.StatusInternalServerError,
+			"data": nil,
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"msg":  "success",
+		"msg":  "Success",
 		"data": users,
 		"code": fiber.StatusOK,
 	})
 }
 
 func Delete(c *fiber.Ctx) error {
-	user := &models.User{}
-	user.ID = tools.StrToUint(c.Params("id"))
+	user := service.UserInput{
+		Name: c.Query("name"),
+	}
+
 	if err := user.Delete(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"msg":  "delete failed, maybe user not exist",
+			"msg":  err.Error(),
 			"code": fiber.StatusInternalServerError,
 			"data": nil,
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"msg":  "success",
+		"msg":  "Success",
 		"code": fiber.StatusOK,
 		"data": nil,
 	})

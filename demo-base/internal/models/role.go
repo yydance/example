@@ -16,27 +16,22 @@ func (Role) TableName() string {
 }
 
 func (r *Role) Create() error {
-	// TODO: Implement role creation logic
 	return DB.Create(r).Error
 }
 func (r *Role) Update() error {
-	// TODO: Implement role update logic
-	return DB.Save(r).Error
+	return DB.Where("name = ?", r.Name).Save(r).Error
 }
 func (r *Role) Delete() error {
-	// TODO: Implement role deletion logic
-	return DB.Delete(r).Error
+	return DB.Where("name = ?", r.Name).Delete(r).Error
 }
 
-func (r *Role) List() ([]Role, error) {
-	// TODO: Implement role listing logic
+func (r *Role) List(pageNum, pageLimit int) ([]Role, error) {
 	var roles []Role
-	return roles, DB.Find(&roles).Error
+	return roles, DB.Offset((pageNum - 1) * pageLimit).Limit(pageLimit).Find(&roles).Error
 }
 
-func (r *Role) Get(id uint) error {
-	// TODO: Implement role retrieval logic
-	return DB.First(r, id).Error
+func (r *Role) Find() error {
+	return DB.First(r, r.Name).Error
 }
 
 var permissions map[string]RouteUri = map[string]RouteUri{
@@ -51,4 +46,9 @@ func ListPermissions() []string {
 		keys = append(keys, k)
 	}
 	return keys
+}
+
+func (r *Role) IsExist(name string) bool {
+	var role Role
+	return DB.Where("name = ?", name).First(&role).Error == nil
 }

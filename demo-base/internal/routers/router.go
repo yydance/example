@@ -5,6 +5,7 @@ import (
 	"demo-base/internal/utils/logger"
 	"time"
 
+	"demo-base/internal/handler/role"
 	"demo-base/internal/handler/system"
 	"demo-base/internal/handler/user"
 
@@ -70,11 +71,19 @@ func InitRouter() *fiber.App {
 	}
 	userRouters := routers.Group("/user")
 	{
-		userRouters.Get("/list", user.GetAll)
+		userRouters.Get("/list", user.List)
 		userRouters.Post("/create", user.Create)
 		userRouters.Get("/detail/:id", user.Get)
 		userRouters.Put("/update/:id", user.Update)
 		userRouters.Delete("/delete/:id", user.Delete)
+	}
+	roleRouters := routers.Group("/role")
+	{
+		//roleRouters.Get("/list", role.GetAll)
+		roleRouters.Post("/create", role.Create)
+		//roleRouters.Get("/detail/:id", user.Get)
+		roleRouters.Put("/update/:id", role.Update)
+		//roleRouters.Delete("/delete/:id", user.Delete)
 	}
 
 	return app

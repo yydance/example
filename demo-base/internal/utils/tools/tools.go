@@ -14,3 +14,12 @@ func StrToUint(str string) uint {
 	}
 	return uint(res)
 }
+
+func StrToInt(str string) int {
+	res, err := strconv.Atoi(str)
+	if err != nil {
+		logger.Panicf("StrToInt error: %v", err)
+		//return 0
+	}
+	return res
+}
