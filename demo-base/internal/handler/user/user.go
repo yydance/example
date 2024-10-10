@@ -2,6 +2,7 @@ package user
 
 import (
 	"demo-base/internal/models"
+	"demo-base/internal/utils/tools"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -37,12 +38,25 @@ func Create(c *fiber.Ctx) error {
 }
 
 func Get(c *fiber.Ctx) error {
-	//user := &models.User{}
-	return nil
+	user := &models.User{}
+	user.ID = tools.StrToUint(c.Params("id"))
+	if err := user.Find(); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"msg":  "user not found",
+			"code": fiber.StatusNotFound,
+			"data": nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"msg":  "success",
+		"code": fiber.StatusOK,
+		"data": user,
+	})
 }
 
 func Update(c *fiber.Ctx) error {
-	var user *models.User
+	user := &models.User{}
 	if err := c.BodyParser(user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"msg":  err.Error(),
@@ -94,5 +108,18 @@ func GetAll(c *fiber.Ctx) error {
 }
 
 func Delete(c *fiber.Ctx) error {
-	return nil
+	user := &models.User{}
+	user.ID = tools.StrToUint(c.Params("id"))
+	if err := user.Delete(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"msg":  "delete failed, maybe user not exist",
+			"code": fiber.StatusInternalServerError,
+			"data": nil,
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"msg":  "success",
+		"code": fiber.StatusOK,
+		"data": nil,
+	})
 }

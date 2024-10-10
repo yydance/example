@@ -25,7 +25,7 @@ func (u *User) Update() error {
 }
 
 func (u *User) Delete() error {
-	return DB.Delete(u).Error
+	return DB.Where("id = ?", u.ID).Delete(u).Error
 }
 
 func (u *User) Find() error {
