@@ -16,7 +16,7 @@ func InitDB() {
 	DB = newDB(conf.MysqlConfig)
 	DB.AutoMigrate(
 		&User{},
-		&Role{}) // 自动迁移模式
+		&RolePlatform{}) // 自动迁移模式
 }
 
 func newDB(config conf.Mysql) *gorm.DB {

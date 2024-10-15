@@ -1,36 +1,38 @@
 package models
 
-import "gorm.io/gorm"
+import "errors"
 
 type RouteUri string
 
-type Role struct {
-	gorm.Model
+type RolePlatform struct {
 	Name        string   `json:"name" gorm:"type:varchar(64);not null"`
 	Description string   `json:"description" gorm:"type:varchar(255)"`
 	Permissions []string `json:"permissions" gorm:"type:json"`
 }
 
-func (Role) TableName() string {
-	return "roles"
+func (RolePlatform) TableName() string {
+	return "roles_platform"
 }
 
-func (r *Role) Create() error {
+func (r *RolePlatform) Create() error {
+	if r.IsExist() {
+		return errors.New("平台角色已存在")
+	}
 	return DB.Create(r).Error
 }
-func (r *Role) Update() error {
-	return DB.Where("name = ?", r.Name).Save(r).Error
+func (r *RolePlatform) Update() error {
+	return DB.Where("name = ?", r.Name).Updates(r).Error
 }
-func (r *Role) Delete() error {
+func (r *RolePlatform) Delete() error {
 	return DB.Where("name = ?", r.Name).Delete(r).Error
 }
 
-func (r *Role) List(pageNum, pageLimit int) ([]Role, error) {
-	var roles []Role
+func (r *RolePlatform) List(pageNum, pageLimit int) ([]RolePlatform, error) {
+	var roles []RolePlatform
 	return roles, DB.Offset((pageNum - 1) * pageLimit).Limit(pageLimit).Find(&roles).Error
 }
 
-func (r *Role) Find() error {
+func (r *RolePlatform) Find() error {
 	return DB.First(r, r.Name).Error
 }
 
@@ -48,7 +50,7 @@ func ListPermissions() []string {
 	return keys
 }
 
-func (r *Role) IsExist(name string) bool {
-	var role Role
-	return DB.Where("name = ?", name).First(&role).Error == nil
+func (r *RolePlatform) IsExist() bool {
+	var role RolePlatform
+	return DB.Where("name = ?", r.Name).First(&role).RowsAffected > 0
 }

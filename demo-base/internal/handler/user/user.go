@@ -75,9 +75,32 @@ func Update(c *fiber.Ctx) error {
 	})
 }
 
+func UpdatePassword(c *fiber.Ctx) error {
+	user := service.UserPassword{}
+	if err := c.BodyParser(user); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"msg":  err.Error(),
+			"code": fiber.StatusBadRequest,
+			"data": nil,
+		})
+	}
+	if err := user.UpdatePassword(); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"msg":  err.Error(),
+			"code": fiber.StatusInternalServerError,
+			"data": nil,
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"msg":  "Success",
+		"code": fiber.StatusOK,
+		"data": nil,
+	})
+}
+
 func List(c *fiber.Ctx) error {
 	user := service.UserInput{}
-	users, err := user.List(c.QueryInt("page_num"), c.QueryInt("page_size"))
+	users, err := user.List(c.QueryInt("page_num", 1), c.QueryInt("page_size", 10))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"msg":  err.Error(),

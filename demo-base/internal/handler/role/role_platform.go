@@ -7,7 +7,7 @@ import (
 )
 
 func Create(c *fiber.Ctx) error {
-	role := service.RoleInput{}
+	role := service.RolePlatform{}
 	if err := c.BodyParser(role); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"msg":  "Invalid request body",
@@ -32,7 +32,7 @@ func Create(c *fiber.Ctx) error {
 }
 
 func Update(c *fiber.Ctx) error {
-	role := service.RoleInput{}
+	role := service.RolePlatform{}
 	if err := c.BodyParser(role); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"msg":  "Invalid request body",

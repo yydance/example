@@ -7,9 +7,11 @@ import (
 
 type User struct {
 	gorm.Model
-	Name  string `json:"name" gorm:"type:varchar(50);not null"`
-	Email string `json:"email" gorm:"type:varchar(50)"`
-	Role  string `json:"role_name" gorm:"column:role_name;type:varchar(50)"`
+	Name         string   `json:"name" gorm:"type:varchar(50);not null"`
+	Email        string   `json:"email" gorm:"type:varchar(50)"`
+	Password     string   `json:"password" gorm:"type:varchar(50)"`
+	RolePlatform []string `json:"role_platform" gorm:"column:role_name_id;type:json"`
+	//RoleProject  string   `json:"role_project_id" gorm:"column:role_project_id;type:varchar(50)"`
 }
 
 func (User) TableName() string {
@@ -21,7 +23,11 @@ func (u *User) Create() error {
 }
 
 func (u *User) Update() error {
-	return DB.Where("name = ?", u.Name).Save(u).Error
+	return DB.Where("name = ?", u.Name).Updates(u).Error
+}
+
+func (u *User) UpdatePassword() error {
+	return DB.Where("name = ?", u.Name).Update("password", u.Password).Error
 }
 
 func (u *User) Delete() error {
@@ -30,6 +36,10 @@ func (u *User) Delete() error {
 
 func (u *User) Find() error {
 	return DB.First(u, u.Name).Error
+}
+func (u *User) FindAllByName() ([]string, error) {
+	var names []string
+	return names, DB.Select([]string{"name"}).Scan(&names).Error
 }
 
 func (u *User) FindByName(name string) error {
@@ -52,5 +62,5 @@ func (u *User) Count() (int64, error) {
 
 func (u *User) IsExist(name string) bool {
 	var user User
-	return DB.Where("name = ?", name).First(&user).Error == nil
+	return DB.Where("name = ?", name).First(&user).RowsAffected > 0
 }

@@ -5,6 +5,7 @@ import (
 	"demo-base/internal/utils/logger"
 	"time"
 
+	"demo-base/internal/handler/project"
 	"demo-base/internal/handler/role"
 	"demo-base/internal/handler/system"
 	"demo-base/internal/handler/user"
@@ -69,21 +70,34 @@ func InitRouter() *fiber.App {
 		routers.Get("/health", system.Health)
 		routers.Get("/info", system.Info)
 	}
-	userRouters := routers.Group("/user")
+	userRouters := routers.Group("/users")
 	{
 		userRouters.Get("/list", user.List)
 		userRouters.Post("/create", user.Create)
-		userRouters.Get("/detail/:id", user.Get)
-		userRouters.Put("/update/:id", user.Update)
-		userRouters.Delete("/delete/:id", user.Delete)
+		userRouters.Get("/:name", user.Get)
+		userRouters.Put("/:name", user.Update)
+		userRouters.Put("/:name/password", user.UpdatePassword)
+		userRouters.Delete("/:name", user.Delete)
 	}
-	roleRouters := routers.Group("/role")
+	roleRouters := routers.Group("/roles")
 	{
 		//roleRouters.Get("/list", role.GetAll)
 		roleRouters.Post("/create", role.Create)
 		//roleRouters.Get("/detail/:id", user.Get)
-		roleRouters.Put("/update/:id", role.Update)
+		roleRouters.Put("/:name", role.Update)
 		//roleRouters.Delete("/delete/:id", user.Delete)
+	}
+
+	projectRouters := routers.Group("/projects")
+	{
+		projectRouters.Get("/list", project.List)
+		projectRouters.Post("/create", project.Create)
+		//projectRouters.Get("/detail/:name", project.Get)
+		projectRouters.Put("/:name", project.Update)
+		projectRouters.Delete("/:name", project.Delete)
+		projectRouters.Post("/:name/roles", project.CreateRole)
+		projectRouters.Delete("/:name/roles/:roleName", project.DeleteRole)
+		projectRouters.Put("/:name/roles/:roleName", project.UpdateRole)
 	}
 
 	return app
