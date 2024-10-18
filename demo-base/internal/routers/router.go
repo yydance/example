@@ -98,6 +98,9 @@ func InitRouter() *fiber.App {
 		projectRouters.Post("/:name/roles", project.CreateRole)
 		projectRouters.Delete("/:name/roles/:roleName", project.DeleteRole)
 		projectRouters.Put("/:name/roles/:roleName", project.UpdateRole)
+		projectRouters.Post("/:name/members", project.AddMember)
+		projectRouters.Put("/:name/members/:memberName", project.UpdateMember)
+		projectRouters.Delete("/:name/members/:memberName", project.RemoveMember)
 	}
 
 	return app

@@ -29,7 +29,7 @@ func AddMember(c *fiber.Ctx) error {
 
 func RemoveMember(c *fiber.Ctx) error {
 	member := service.ProjectMemberInput{
-		UserName: c.Params("member"),
+		UserName: c.Params("memberName"),
 	}
 	if err := member.DeleteMember(c.Params("name")); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
