@@ -43,7 +43,7 @@ func init() {
 
 func mainCmd() error {
 	conf.InitConfig()
-	models.InitDB()
+	models.InitStorage()
 
 	errSig := make(chan error, 2)
 	app := routers.InitRouter()

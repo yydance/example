@@ -10,6 +10,8 @@ import (
 var (
 	RunMode    = ""
 	ConfigFile = "./conf/config.yaml"
+	RBACModel  = "./conf/rbac_model.conf"
+	RBACPolicy = "./conf/policy.json"
 	//WorkDir                  = "."
 	Timeout      time.Duration = 10 * time.Second
 	Version                    = "0.0.1"

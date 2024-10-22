@@ -12,11 +12,12 @@ import (
 
 var DB *gorm.DB
 
-func InitDB() {
+func InitStorage() {
 	DB = newDB(conf.MysqlConfig)
 	DB.AutoMigrate(
 		&User{},
 		&RolePlatform{}) // 自动迁移模式
+	InitCasbinEnforcer()
 }
 
 func newDB(config conf.Mysql) *gorm.DB {

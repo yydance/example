@@ -2,6 +2,7 @@ package tools
 
 import (
 	"demo-base/internal/utils/logger"
+	"reflect"
 	"strconv"
 )
 
@@ -22,4 +23,32 @@ func StrToInt(str string) int {
 		//return 0
 	}
 	return res
+}
+
+func StringSliceToIntergerSlice(s []string) []interface{} {
+	res := make([]interface{}, 0, len(s))
+	for i, str := range s {
+		res[i] = str
+	}
+	return res
+}
+
+func DiffSlices(a, b [][]string) [][]string {
+	result := make([][]string, 0)
+	if len(a) < len(b) {
+		return DiffSlices(b, a)
+	}
+	for _, itemA := range a {
+		found := false
+		for _, itemB := range b {
+			if reflect.DeepEqual(itemA, itemB) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			result = append(result, itemA)
+		}
+	}
+	return result
 }

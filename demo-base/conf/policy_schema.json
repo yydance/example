@@ -1,0 +1,113 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "User Manager": {
+            "type": "object",
+            "properties": {
+                "/api/v1/users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "/api/v1/users/:name": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "/api/v1/users/:name/updatePassword": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "/api/v1/users",
+                "/api/v1/users/:name",
+                "/api/v1/users/:name/updatePassword"
+            ]
+        },
+        "Roles Manager": {
+            "type": "object",
+            "properties": {
+                "/api/v1/roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "/api/v1/roles/:name": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "/api/v1/roles",
+                "/api/v1/roles/:name"
+            ]
+        },
+        "Projects Manager": {
+            "type": "object",
+            "properties": {
+                "/api/v1/projects": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "/api/v1/projects/:name": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "/api/v1/projects/:name/roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "/api/v1/projects/:name/roles/:roleName": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "/api/v1/projects/:name/members": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "/api/v1/projects/:name/members/:memberName": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "/api/v1/projects",
+                "/api/v1/projects/:name",
+                "/api/v1/projects/:name/roles",
+                "/api/v1/projects/:name/roles/:roleName",
+                "/api/v1/projects/:name/users",
+                "/api/v1/projects/:name/users/:userName"
+            ]
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "User Manager",
+        "Roles Manager",
+        "Projects Manager"
+    ]
+}
