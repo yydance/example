@@ -30,8 +30,8 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&conf.ConfigFile, "config", "", "config file (default is ./conf/config.yaml)")
-	//rootCmd.PersistentFlags().StringVar(&conf.WorkDir, "workdir", "w", "workdir path (default is ./)")
+	rootCmd.PersistentFlags().StringVarP(&conf.ConfigFile, "config", "c", "./conf/config.yaml", "config file (default is ./conf/config.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&conf.WorkDir, "workdir", "w", ".", "workdir path (default is ./)")
 	rootCmd.AddCommand(&cobra.Command{
 		Use:   "version",
 		Short: "show app version",

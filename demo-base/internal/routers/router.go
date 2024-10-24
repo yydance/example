@@ -2,6 +2,7 @@ package routers
 
 import (
 	"demo-base/internal/conf"
+	"demo-base/internal/middleware/casbin"
 	"demo-base/internal/utils/logger"
 	"time"
 
@@ -35,6 +36,7 @@ func InitRouter() *fiber.App {
 		JSONEncoder:           sonic.Marshal,
 		JSONDecoder:           sonic.Unmarshal,
 		DisableStartupMessage: false,
+		ServerHeader:          "Oreo-Server",
 	})
 
 	app.Use(recover.New(recover.Config{
@@ -72,35 +74,35 @@ func InitRouter() *fiber.App {
 	}
 	userRouters := routers.Group("/users")
 	{
-		userRouters.Get("/list", user.List)
-		userRouters.Post("/create", user.Create)
-		userRouters.Get("/:name", user.Get)
-		userRouters.Put("/:name", user.Update)
-		userRouters.Put("/:name/password", user.UpdatePassword)
-		userRouters.Delete("/:name", user.Delete)
+		userRouters.Get("/list", casbin.RoutePermission(), user.List)
+		userRouters.Post("/create", casbin.RoutePermission(), user.Create)
+		userRouters.Get("/:name", casbin.RoutePermission(), user.Get)
+		userRouters.Put("/:name", casbin.RoutePermission(), user.Update)
+		userRouters.Put("/:name/password", casbin.RoutePermission(), user.UpdatePassword)
+		userRouters.Delete("/:name", casbin.RoutePermission(), user.Delete)
 	}
 	roleRouters := routers.Group("/roles")
 	{
 		//roleRouters.Get("/list", role.GetAll)
-		roleRouters.Post("/create", role.Create)
+		roleRouters.Post("/create", casbin.RoutePermission(), role.Create)
 		//roleRouters.Get("/detail/:id", user.Get)
-		roleRouters.Put("/:name", role.Update)
+		roleRouters.Put("/:name", casbin.RoutePermission(), role.Update)
 		//roleRouters.Delete("/delete/:id", user.Delete)
 	}
 
 	projectRouters := routers.Group("/projects")
 	{
-		projectRouters.Get("/list", project.List)
-		projectRouters.Post("/create", project.Create)
+		projectRouters.Get("/list", casbin.RoutePermission(), project.List)
+		projectRouters.Post("/create", casbin.RoutePermission(), project.Create)
 		//projectRouters.Get("/detail/:name", project.Get)
-		projectRouters.Put("/:name", project.Update)
+		projectRouters.Put("/:name", casbin.RoutePermission(), project.Update)
 		projectRouters.Delete("/:name", project.Delete)
-		projectRouters.Post("/:name/roles", project.CreateRole)
-		projectRouters.Delete("/:name/roles/:roleName", project.DeleteRole)
-		projectRouters.Put("/:name/roles/:roleName", project.UpdateRole)
-		projectRouters.Post("/:name/members", project.AddMember)
-		projectRouters.Put("/:name/members/:memberName", project.UpdateMember)
-		projectRouters.Delete("/:name/members/:memberName", project.RemoveMember)
+		projectRouters.Post("/:name/roles", casbin.RoutePermission(), project.CreateRole)
+		projectRouters.Delete("/:name/roles/:roleName", casbin.RoutePermission(), project.DeleteRole)
+		projectRouters.Put("/:name/roles/:roleName", casbin.RoutePermission(), project.UpdateRole)
+		projectRouters.Post("/:name/members", casbin.RoutePermission(), project.AddMember)
+		projectRouters.Put("/:name/members/:memberName", casbin.RoutePermission(), project.UpdateMember)
+		projectRouters.Delete("/:name/members/:memberName", casbin.RoutePermission(), project.RemoveMember)
 	}
 
 	return app

@@ -3,8 +3,8 @@ server:
     host: "0.0.0.0"
     port: "8080"
   # api_key: "QPZXkYDY2cXG1vRKfIpwdqzBOpf4G1Zy"
-  run_mode: "dev"
 
+  # TODO: log rotation
   log:
     level: "debug"
     error_path: "./logs/error.log"

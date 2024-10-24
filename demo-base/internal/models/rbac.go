@@ -1,10 +1,10 @@
 package models
 
 import (
-	"demo-base/internal/conf"
 	"demo-base/internal/utils/logger"
 
 	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"gorm.io/gorm"
 )
@@ -30,7 +30,26 @@ func InitCasbinEnforcer() {
 	if err != nil {
 		logger.Error("rbac init error: %v", err)
 	}
-	CasbinEnforcer, err = casbin.NewEnforcer(conf.RBACModel, gadapter)
+	m, err := model.NewModelFromString(`
+	[request_definition]
+	r = sub, obj, act
+
+	[policy_definition]
+	p = sub, obj, act
+
+	[role_definition]
+	g = _, _
+
+	[policy_effect]
+	e = some(where (p.eft == allow)) && !some(where (p.eft == deny))
+
+	[matchers]
+	m = r.sub == p.sub && g(r.sub,p.sub) && r.obj == p.obj && r.act == p.act || r.sub == "root" || r.sub == "admin"
+	`)
+	if err != nil {
+		logger.Error("casbin new model error: %v", err)
+	}
+	CasbinEnforcer, err = casbin.NewEnforcer(m, gadapter)
 	if err != nil {
 		logger.Error("casbin new enforcer error: %v", err)
 	}

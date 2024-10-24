@@ -15,6 +15,7 @@ func (r *RoleProject) Create(project_name string) error {
 	if err != nil || project_name == "" {
 		return errors.New("参数错误")
 	}
+	// 添加策略
 	role := models.RoleProject{
 		RoleName:    r.Name,
 		Permissions: r.Permissions,

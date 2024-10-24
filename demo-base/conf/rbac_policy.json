@@ -15,5 +15,8 @@
 		"/api/v1/projects/:name/roles/:roleName": ["GET","PUT","PATCH","DELETE"],
 		"/api/v1/projects/:name/members": ["GET","POST"],
 		"/api/v1/projects/:name/members/:memberName": ["GET","PUT","PATCH","DELETE"]
+	},
+	"Admin": {
+	    "*": ["*"]
 	}
 }

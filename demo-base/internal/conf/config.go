@@ -8,11 +8,10 @@ import (
 )
 
 var (
-	RunMode    = ""
+	WorkDir    = "."
 	ConfigFile = "./conf/config.yaml"
-	RBACModel  = "./conf/rbac_model.conf"
-	RBACPolicy = "./conf/policy.json"
-	//WorkDir                  = "."
+	//RBACModel  = "./conf/rbac_model.conf"
+	RBACPolicy                 = "" // default: ./conf/rbac_policy.json
 	Timeout      time.Duration = 10 * time.Second
 	Version                    = "0.0.1"
 	MysqlConfig  Mysql
@@ -20,6 +19,7 @@ var (
 	ServerConfig Server
 	CorsConfig   Cors
 	LogConfig    Log
+	LogLevel     = "debug"
 )
 
 type Config struct {
@@ -33,7 +33,6 @@ type Server struct {
 	JWT         JWT       `mapstructure:"jwt"`
 	Cors        Cors      `mapstructure:"cors"`
 	FiberConfig FiberConf `mapstructure:"fiber_config"`
-	RunMode     string    `mapstructure:"run_mode"`
 }
 
 type Listen struct {
@@ -110,8 +109,12 @@ func setupConfig() {
 	if err := viper.Unmarshal(config); err != nil {
 		panic(fmt.Sprintf("Failed to unmarshal the configuration file: %s, err: %s", ConfigFile, err.Error()))
 	}
+	if WorkDir == "" || WorkDir == "." {
+		RBACPolicy = "./conf/rbac_policy.json"
+	} else {
+		RBACPolicy = WorkDir + "/conf/rbac_policy.json"
+	}
 	MysqlConfig = config.Database.Mysql
-	RunMode = config.Server.RunMode
 	FiberConfig = config.Server.FiberConfig
 	CorsConfig = config.Server.Cors
 	LogConfig = config.Server.Log
