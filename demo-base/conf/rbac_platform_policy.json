@@ -1,14 +1,14 @@
 {
-	"User Manager": {
+	"User Management": {
 		"/api/v1/users": ["GET", "POST"],
 		"/api/v1/users/:name": ["GET","PUT","PATCH","DELETE"],
 		"/api/v1/users/:name/updatePassword": ["PUT"]
 	},
-	"Roles Manager": {
+	"Roles Management": {
 		"/api/v1/roles": ["GET", "POST"],
 		"/api/v1/roles/:name": ["GET","PUT","PATCH","DELETE"]
 	},
-	"Projects Manager": {
+	"Projects Management": {
 		"/api/v1/projects": ["GET","POST"],
 		"/api/v1/projects/:name": ["GET","PUT","PATCH","DELETE"],
 		"/api/v1/projects/:name/roles": ["GET","POST"],

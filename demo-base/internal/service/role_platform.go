@@ -17,7 +17,7 @@ func (r *RolePlatform) Create() error {
 	if err != nil {
 		return errors.New("invalid input")
 	}
-	var rbac *RBAC
+	var rbac *RBACPlatform
 	if err := rbac.AddPolicy(r.Name, r.Permissions); err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (r *RolePlatform) Update() error {
 		return errors.New("invalid input")
 	}
 
-	var rbac *RBAC
+	var rbac *RBACPlatform
 	oldDiffPolicies, newDiffPolicies, err := rbac.GetDiffPolicies(r.Name, r.Permissions)
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func (r *RolePlatform) Update() error {
 }
 
 func (r *RolePlatform) Delete() error {
-	var rbac *RBAC
+	var rbac *RBACPlatform
 	policies, err := rbac.GetPolicies(r.Name)
 	if err != nil {
 		return errors.New((fmt.Sprintf("GetPolicies for role(%s) error: %v", r.Name, err)))

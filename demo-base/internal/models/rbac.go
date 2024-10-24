@@ -11,10 +11,11 @@ import (
 
 type RBACRule struct {
 	gorm.Model
-	Ptype string `gorm:"max=2"`
+	Ptype string `gorm:"max=4"`
 	V0    string `gorm:"max=64"`
 	V1    string `gorm:"max=64"`
-	V2    string `gorm:"max=8"`
+	V2    string `gorm:"max=64"`
+	V3    string `gorm:"max=64"`
 }
 
 /*
@@ -41,10 +42,10 @@ func InitCasbinEnforcer() {
 	g = _, _
 
 	[policy_effect]
-	e = some(where (p.eft == allow)) && !some(where (p.eft == deny))
+	e = some(where (p.eft == allow))
 
 	[matchers]
-	m = r.sub == p.sub && g(r.sub,p.sub) && r.obj == p.obj && r.act == p.act || r.sub == "root" || r.sub == "admin"
+	m = r.sub == p.sub && g(r.sub,p.sub) && r.obj == p.obj && r.act == p.act || r.sub == "root" || r.sub == "admin" || r.sub == "Admin"
 	`)
 	if err != nil {
 		logger.Error("casbin new model error: %v", err)

@@ -11,15 +11,16 @@ var (
 	WorkDir    = "."
 	ConfigFile = "./conf/config.yaml"
 	//RBACModel  = "./conf/rbac_model.conf"
-	RBACPolicy                 = "" // default: ./conf/rbac_policy.json
-	Timeout      time.Duration = 10 * time.Second
-	Version                    = "0.0.1"
-	MysqlConfig  Mysql
-	FiberConfig  FiberConf
-	ServerConfig Server
-	CorsConfig   Cors
-	LogConfig    Log
-	LogLevel     = "debug"
+	RBACPlatformPolicy               = "" // default: ./conf/rbac_platform_policy.json
+	RBACProjectPolicy                = "" // default: ./conf/rbac_project_policy.json
+	Timeout            time.Duration = 10 * time.Second
+	Version                          = "0.0.1"
+	MysqlConfig        Mysql
+	FiberConfig        FiberConf
+	ServerConfig       Server
+	CorsConfig         Cors
+	LogConfig          Log
+	LogLevel           = "debug"
 )
 
 type Config struct {
@@ -110,10 +111,13 @@ func setupConfig() {
 		panic(fmt.Sprintf("Failed to unmarshal the configuration file: %s, err: %s", ConfigFile, err.Error()))
 	}
 	if WorkDir == "" || WorkDir == "." {
-		RBACPolicy = "./conf/rbac_policy.json"
+		RBACPlatformPolicy = "./conf/rbac_platform_policy.json"
+		RBACProjectPolicy = "./conf/rbac_project_policy.json"
 	} else {
-		RBACPolicy = WorkDir + "/conf/rbac_policy.json"
+		RBACPlatformPolicy = WorkDir + "/conf/rbac_platform_policy.json"
+		RBACProjectPolicy = WorkDir + "/conf/rbac_project_policy.json"
 	}
+
 	MysqlConfig = config.Database.Mysql
 	FiberConfig = config.Server.FiberConfig
 	CorsConfig = config.Server.Cors

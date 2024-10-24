@@ -14,20 +14,16 @@ import (
 
 // TODO: rbac policy schema validation
 
-type RBAC struct {
+type RBACPlatform struct {
 	Roles map[string]map[string][]string `json:"roles"`
 }
 
-func init() {
-	NewRBAC()
-}
-
-func NewRBAC() *RBAC {
-	input, err := os.ReadFile(conf.RBACPolicy)
+func NewRBACPlatform() *RBACPlatform {
+	input, err := os.ReadFile(conf.RBACPlatformPolicy)
 	if err != nil {
 		logger.Panic(err.Error())
 	}
-	var rbac *RBAC
+	var rbac *RBACPlatform
 
 	if err = sonic.Unmarshal(input, &rbac.Roles); err != nil {
 		logger.Panic(err.Error())
@@ -36,7 +32,7 @@ func NewRBAC() *RBAC {
 }
 
 // rbac 角色策略，p, sub, obj, act
-func (r *RBAC) AddPolicy(role string, permissions []string) error {
+func (r *RBACPlatform) AddPolicy(role string, permissions []string) error {
 	res, err := models.CasbinEnforcer.AddPoliciesEx(r.GetPoliciesForUser(role, permissions))
 	if err != nil || !res {
 		return errors.New(fmt.Sprintf("Add Policy for role(%s) failed: %v", role, err))
@@ -44,7 +40,7 @@ func (r *RBAC) AddPolicy(role string, permissions []string) error {
 	return nil
 }
 
-func (r *RBAC) UpdatePolicies(role string, permissions []string) error {
+func (r *RBACPlatform) UpdatePolicies(role string, permissions []string) error {
 	oldDiffPolicies, newDiffPolicies, err := r.GetDiffPolicies(role, permissions)
 	if err != nil {
 		return err
@@ -64,11 +60,11 @@ func (r *RBAC) UpdatePolicies(role string, permissions []string) error {
 	return nil
 }
 
-func (r *RBAC) GetPolicies(role string) ([][]string, error) {
+func (r *RBACPlatform) GetPolicies(role string) ([][]string, error) {
 	return models.CasbinEnforcer.GetFilteredPolicy(0, role)
 }
 
-func (r *RBAC) RemovePolicies(role string) error {
+func (r *RBACPlatform) RemovePolicies(role string) error {
 	res, err := models.CasbinEnforcer.DeletePermissionsForUser(role)
 	if err != nil {
 		return err
@@ -79,14 +75,14 @@ func (r *RBAC) RemovePolicies(role string) error {
 	return nil
 }
 
-func (r *RBAC) AddPoliciesEx(rules [][]string) error {
+func (r *RBACPlatform) AddPoliciesEx(rules [][]string) error {
 	res, err := models.CasbinEnforcer.AddPoliciesEx(rules)
 	if err != nil || !res {
 		return errors.New("AddPolicies failed")
 	}
 	return nil
 }
-func (r *RBAC) RemovePoliciesEx(rules [][]string) error {
+func (r *RBACPlatform) RemovePoliciesEx(rules [][]string) error {
 	res, err := models.CasbinEnforcer.RemovePolicies(rules)
 	if err != nil || !res {
 		return errors.New("RemovePolicies failed")
@@ -94,7 +90,7 @@ func (r *RBAC) RemovePoliciesEx(rules [][]string) error {
 	return nil
 }
 
-func (r *RBAC) GetPoliciesForUser(user string, permissions []string) [][]string {
+func (r *RBACPlatform) GetPoliciesForUser(user string, permissions []string) [][]string {
 	res := make([][]string, 0)
 	for _, permission := range permissions {
 		for path, methods := range r.Roles[permission] {
@@ -106,7 +102,7 @@ func (r *RBAC) GetPoliciesForUser(user string, permissions []string) [][]string 
 	return res
 }
 
-func (r *RBAC) GetDiffPolicies(role string, permissions []string) ([][]string, [][]string, error) {
+func (r *RBACPlatform) GetDiffPolicies(role string, permissions []string) ([][]string, [][]string, error) {
 	oldDiffPolicies, newDiffPolicies := make([][]string, 0), make([][]string, 0)
 	existPolicies := make([][]string, 0)
 	oldPolicies, err := r.GetPolicies(role)
@@ -134,7 +130,7 @@ func (r *RBAC) GetDiffPolicies(role string, permissions []string) ([][]string, [
 }
 
 // rbac group策略，g,user,role
-func (r *RBAC) AddGroupPolicy(user string, roles []string) error {
+func (r *RBACPlatform) AddGroupPolicy(user string, roles []string) error {
 	res, err := models.CasbinEnforcer.AddGroupingPolicies(r.GetGroupPoliciesForUser(user, roles))
 	if err != nil || !res {
 		return errors.New(fmt.Sprintf("Add GroupPolicy for user(%s) failed: %v", user, err))
@@ -142,7 +138,7 @@ func (r *RBAC) AddGroupPolicy(user string, roles []string) error {
 	return nil
 }
 
-func (r *RBAC) UpdateGroupPolicies(user string, roles []string) error {
+func (r *RBACPlatform) UpdateGroupPolicies(user string, roles []string) error {
 	oldRoles, err := r.GetGroupPolicies(user)
 	if err != nil {
 		return err
@@ -178,11 +174,11 @@ func (r *RBAC) UpdateGroupPolicies(user string, roles []string) error {
 	return nil
 }
 
-func (r *RBAC) GetGroupPolicies(user string) ([][]string, error) {
+func (r *RBACPlatform) GetGroupPolicies(user string) ([][]string, error) {
 	return models.CasbinEnforcer.GetFilteredGroupingPolicy(0, user)
 }
 
-func (r *RBAC) RemoveGroupPolicies(user string) error {
+func (r *RBACPlatform) RemoveGroupPolicies(user string) error {
 	res, err := models.CasbinEnforcer.DeleteRolesForUser(user)
 	if err != nil {
 		return err
@@ -193,7 +189,7 @@ func (r *RBAC) RemoveGroupPolicies(user string) error {
 	return nil
 }
 
-func (r *RBAC) GetGroupPoliciesForUser(user string, roles []string) [][]string {
+func (r *RBACPlatform) GetGroupPoliciesForUser(user string, roles []string) [][]string {
 	res := make([][]string, 0)
 	for _, role := range roles {
 		res = append(res, []string{user, role})
@@ -201,7 +197,7 @@ func (r *RBAC) GetGroupPoliciesForUser(user string, roles []string) [][]string {
 	return res
 }
 
-func (r *RBAC) GetDiffGroupPolicies(user string, roles []string) ([][]string, [][]string, error) {
+func (r *RBACPlatform) GetDiffGroupPolicies(user string, roles []string) ([][]string, [][]string, error) {
 	oldDiffGroupPolicies, newDiffGroupPolicies := make([][]string, 0), make([][]string, 0)
 	existGroupPolicies := make([][]string, 0)
 	oldRoles, err := r.GetGroupPolicies(user)

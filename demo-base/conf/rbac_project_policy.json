@@ -1,0 +1,10 @@
+{
+    "Role management": {
+        "/api/v1/projects/:name/roles": ["GET", "POST"],
+        "/api/v1/projects/:name/roles/:roleName": ["GET", "PUT", "DELETE", "PATCH"]
+    },
+    "Member management": {
+        "/api/v1/projects/:name/members": ["GET", "POST"],
+        "/api/v1/projects/:name/members/:memberName": ["GET", "PUT", "DELETE", "PATCH"]
+    }
+}
