@@ -60,7 +60,7 @@ func (u *User) Count() (int64, error) {
 	return count, DB.Model(&User{}).Count(&count).Error
 }
 
-func (u *User) IsExist(name string) bool {
+func (u *User) IsExist(name string) (User, bool) {
 	var user User
-	return DB.Where("name = ?", name).First(&user).RowsAffected > 0
+	return user, DB.Where("name = ?", name).First(&user).RowsAffected > 0
 }

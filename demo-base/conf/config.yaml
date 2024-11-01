@@ -24,8 +24,8 @@ server:
     # enabled: false
   
   jwt:
-    secret: "secret"
-    expired: 3600
+    secret: "secret" # Not used
+    expired: 3600 # seconds
     
   cors:
     enabled: false

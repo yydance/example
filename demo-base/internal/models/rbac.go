@@ -5,6 +5,7 @@ import (
 
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
+	"github.com/casbin/casbin/v2/util"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"gorm.io/gorm"
 )
@@ -15,7 +16,6 @@ type RBACRule struct {
 	V0    string `gorm:"max=64"`
 	V1    string `gorm:"max=64"`
 	V2    string `gorm:"max=64"`
-	V3    string `gorm:"max=64"`
 }
 
 /*
@@ -45,7 +45,7 @@ func InitCasbinEnforcer() {
 	e = some(where (p.eft == allow))
 
 	[matchers]
-	m = r.sub == p.sub && g(r.sub,p.sub) && r.obj == p.obj && r.act == p.act || r.sub == "root" || r.sub == "admin" || r.sub == "Admin"
+	m = r.sub == p.sub && g(r.sub,p.sub) && r.obj == p.obj && r.act == p.act
 	`)
 	if err != nil {
 		logger.Error("casbin new model error: %v", err)
@@ -54,28 +54,47 @@ func InitCasbinEnforcer() {
 	if err != nil {
 		logger.Error("casbin new enforcer error: %v", err)
 	}
+	CasbinEnforcer.AddNamedMatchingFunc("p", "KeyMatch2", util.KeyMatch2)
 }
 
-/*
-type RBAC struct{}
-
-func (r *RBAC) Enforce(user, resource, action string) (bool, error) {
-	return CasbinEnforcer.Enforce(user, resource, action)
+type RBACRule1 struct {
+	gorm.Model
+	Ptype string `gorm:"max=4"`
+	V0    string `gorm:"max=64"`
+	V1    string `gorm:"max=64"`
+	V2    string `gorm:"max=64"`
+	V3    string `gorm:"max=64"`
 }
 
-func (r *RBAC) AddPolicy(rule []string) (bool, error) {
-	return CasbinEnforcer.AddPolicy(rule)
-}
+var CasbinEnforcer1 *casbin.Enforcer
 
-func (r *RBAC) AddPolicies(rules [][]string) (bool, error) {
-	return CasbinEnforcer.AddPolicies(rules)
-}
+func InitCasbinEnforcer1() {
+	gadapter, err := gormadapter.NewAdapterByDBWithCustomTable(DB, &RBACRule1{}, "rbac_rules1")
+	if err != nil {
+		logger.Error("rbac init error: %v", err)
+	}
+	m, err := model.NewModelFromString(`
+	[request_definition]
+	r = sub, dom, obj, act
 
-func (r *RBAC) RemovePolicy(rule []string) (bool, error) {
-	return CasbinEnforcer.RemovePolicy(rule)
-}
+	[policy_definition]
+	p = sub, dom, obj, act
 
-func (r *RBAC) RemovePolicies(rules [][]string) (bool, error) {
-	return CasbinEnforcer.RemovePolicies(rules)
+	[role_definition]
+	g = _, _, _
+
+	[policy_effect]
+	e = some(where (p.eft == allow))
+
+	[matchers]
+	m = r.dom == p.dom && g(r.sub,p.sub,r.dom) && r.obj == p.obj && r.act == p.act
+	`)
+	if err != nil {
+		logger.Error("casbin new model error: %v", err)
+	}
+	CasbinEnforcer1, err = casbin.NewEnforcer(m, gadapter)
+	if err != nil {
+		logger.Error("casbin new enforcer error: %v", err)
+	}
+	CasbinEnforcer1.AddNamedMatchingFunc("p", "KeyMatch2", util.KeyMatch2)
 }
-*/

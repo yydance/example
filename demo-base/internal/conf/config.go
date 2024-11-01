@@ -20,7 +20,9 @@ var (
 	ServerConfig       Server
 	CorsConfig         Cors
 	LogConfig          Log
+	Jwt                JWT
 	LogLevel           = "debug"
+	Issuer             = "Damon Tech"
 )
 
 type Config struct {
@@ -123,4 +125,5 @@ func setupConfig() {
 	CorsConfig = config.Server.Cors
 	LogConfig = config.Server.Log
 	ServerConfig = config.Server
+	Jwt = config.Server.JWT
 }

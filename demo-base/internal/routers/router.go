@@ -2,7 +2,9 @@ package routers
 
 import (
 	"demo-base/internal/conf"
+	"demo-base/internal/handler"
 	"demo-base/internal/middleware/casbin"
+	"demo-base/internal/middleware/jwt"
 	"demo-base/internal/utils/logger"
 	"time"
 
@@ -65,7 +67,10 @@ func InitRouter() *fiber.App {
 	}))
 	app.Get("/metrics", monitor.New())
 
+	app.Use(jwt.Authentication())
+
 	// Routes
+	app.Post("/login", handler.Login)
 	routers := app.Group("/api/v1")
 	{
 		routers.Get("/ping", system.Ping)

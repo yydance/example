@@ -43,7 +43,7 @@ func (u *UserInput) Create() error {
 	if err != nil || u.Password == "" {
 		return errors.New("invalid input")
 	}
-	if u.IsExist() {
+	if _, ok := u.IsExist(); ok {
 		return errors.New("user already exists")
 	}
 	user := models.User{
@@ -67,7 +67,7 @@ func (u *UserInput) Update() error {
 	if err != nil {
 		return errors.New("invalid input")
 	}
-	if u.IsExist() {
+	if _, ok := u.IsExist(); ok {
 		return errors.New("user already exists")
 	}
 	user := models.User{
@@ -113,7 +113,7 @@ func (u *UserInput) List(pageNum, pageSize int) ([]UsersOutput, error) {
 	return users, nil
 }
 
-func (u *UserInput) IsExist() bool {
+func (u *UserInput) IsExist() (models.User, bool) {
 	var user models.User
 	return user.IsExist(u.Name)
 }
