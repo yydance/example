@@ -1,17 +1,16 @@
 {
     "user_roles": {
-        "damon": [
-            {"global":"Platform:Users:View"},
-            {"global": "Platform:Projects:View"}
-        ],
-        "qa": [
-            {"global": "Platform:Projects:View"},
-            {"qa": "Proj:Roles:Management"}
-        ],
-        "dev": [
-            {"dev": "Proj:Roles:View"},
-            {"dev": "Proj:Apps:View"}
-        ]
+        "damon": {
+          "global": ["Platform:Users:View","Platform:Projects:View"],
+          "qa": ["Proj:Roles:Management"]
+        },
+        "alice": {
+              "global": ["Platform:Projects:View"],
+            	"qa": ["Proj:Roles:Management"]
+        },
+        "bob": {
+          "dev": ["Proj:Roles:View","Proj:Apps:View"]
+        }
     },
     "role_grants": {
         "Platform:Admin": [{"action": "*", "object":"*"}],
@@ -24,16 +23,16 @@
             {"action": ["GET","PUT","DELETE"], "object": "/api/v1/users/[0-9a-z+]+"}
         ],
         "Platform:Roles:View": [
-            {"action": "GET", "object": "/api/v1/roles"},
-            {"action": "GET", "object": "/api/v1/roles/[0-9a-z]+"}
+            {"action": ["GET"], "object": "/api/v1/roles"},
+            {"action": ["GET"], "object": "/api/v1/roles/[0-9a-z]+"}
         ],
         "Platform:Roles:Management": [
             {"action": ["GET","POST"], "object": "/api/v1/roles"},
             {"action": ["GET","PUT","DELETE"], "object": "/api/v1/roles/[0-9a-z]+"}
         ],
         "Platform:Projects:View": [
-            {"action": "GET", "object": "/api/v1/projects"},
-            {"action": "GET", "object": "/api/v1/projects/[0-9a-z]+"}
+            {"action": ["GET"], "object": "/api/v1/projects"},
+            {"action": ["GET"], "object": "/api/v1/projects/[0-9a-z]+"}
         ],
         "Platform:Projects:Management": [
             {"action": ["GET","POST"], "object": "/api/v1/projects"},
@@ -47,8 +46,8 @@
             {"action": ["GET"], "object": "/api/v1/projects/[0-9a-z]+/apps/[0-9a-z]+"}
         ],
         "Proj:Roles:View": [
-            {"action": "GET", "object": "/api/v1/projects/[0-9a-z]+/roles"},
-            {"action": "GET", "object": "/api/v1/projects/[0-9a-z]+/members"}
+            {"action": ["GET"], "object": "/api/v1/projects/[0-9a-z]+/roles"},
+            {"action": ["GET"], "object": "/api/v1/projects/[0-9a-z]+/members"}
         ],
         "Proj:Roles:Management": [
             {"action": ["GET","POST"], "object": "/api/v1/projects/[0-9a-z]+/roles"},
