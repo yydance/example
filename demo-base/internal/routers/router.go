@@ -10,7 +10,6 @@ import (
 
 	"demo-base/internal/handler/project"
 	"demo-base/internal/handler/role"
-	"demo-base/internal/handler/system"
 	"demo-base/internal/handler/user"
 
 	"github.com/bytedance/sonic"
@@ -38,7 +37,7 @@ func InitRouter() *fiber.App {
 		JSONEncoder:           sonic.Marshal,
 		JSONDecoder:           sonic.Unmarshal,
 		DisableStartupMessage: false,
-		ServerHeader:          "Oreo-Server",
+		ServerHeader:          "Olio-Server",
 	})
 
 	app.Use(recover.New(recover.Config{
@@ -70,13 +69,15 @@ func InitRouter() *fiber.App {
 	app.Use(jwt.Authentication())
 
 	// Routes
-	app.Post("/login", handler.Login)
 	routers := app.Group("/api/v1")
-	{
-		routers.Get("/ping", system.Ping)
-		routers.Get("/health", system.Health)
-		routers.Get("/info", system.Info)
-	}
+	app.Post("/login", handler.Login)
+	/*
+		{
+			routers.Get("/ping", system.Ping)
+			routers.Get("/health", system.Health)
+			routers.Get("/info", system.Info)
+		}
+	*/
 	userRouters := routers.Group("/users")
 	{
 		userRouters.Get("/list", casbin.RoutePermission(), user.List)

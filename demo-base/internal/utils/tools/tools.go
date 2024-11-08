@@ -52,3 +52,8 @@ func DiffSlices(a, b [][]string) [][]string {
 	}
 	return result
 }
+
+// TODO: check slice contains some
+func CheckSliceContains(slice []string, item string) bool {
+	return false
+}

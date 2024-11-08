@@ -1,0 +1,48 @@
+
+[{
+    "username": "damon",
+    "action": "GET",
+    "domain": "global",
+    "object": "/api/v1/users"
+},
+{
+    "username": "damon",
+    "action": "GET",
+    "domain": "global",
+    "object": "/api/v1/users/admin"
+},
+{
+    "username": "damon",
+    "action": "GET",
+    "domain": "global",
+    "object": "/api/v1/projects"
+},
+{
+    "username": "damon",
+    "action": "GET",
+    "object": "/api/v1/projects/dev"
+},
+{
+    "username": "damon",
+    "action": "GET",
+    "domain": "global",
+    "object": "/api/v1/projects/dev/roles"
+},
+{
+    "username": "damon",
+    "action": "POST",
+    "domain": "dev",
+    "object": "/api/v1/projects/dev/roles"
+},
+{
+    "username": "damon",
+    "action": "PUT",
+    "domain": "dev",
+    "object": "/api/v1/projects/dev/roles/qa"
+},
+{
+    "username": "damon",
+    "action": "DELETE",
+    "domain": "dev",
+    "object": "/api/v1/projects/dev/roles/qa"
+}]

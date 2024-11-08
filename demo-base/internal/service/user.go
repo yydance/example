@@ -52,7 +52,16 @@ func (u *UserInput) Create() error {
 		Password:     u.Password,
 		RolePlatform: u.RolePlatform,
 	}
-	return user.Create()
+
+	if err := user.Create(); err == nil {
+		var rbac *RBACPlatform
+		if err := rbac.AddGroupPolicies(u.Name, u.RolePlatform); err != nil {
+			return errors.New("Failed to add group policies")
+		}
+	} else {
+		return err
+	}
+	return nil
 }
 
 func (u *UserInput) Get() (models.User, error) {
@@ -75,8 +84,15 @@ func (u *UserInput) Update() error {
 		Email:        u.Email,
 		RolePlatform: u.RolePlatform,
 	}
-	return user.Update()
-
+	if err := user.Update(); err == nil {
+		var rbac *RBACPlatform
+		if err := rbac.UpdateGroupPolicies(u.Name, u.RolePlatform); err != nil {
+			return errors.New("Failed to update group policies")
+		}
+	} else {
+		return err
+	}
+	return nil
 }
 
 func (u *UserPassword) UpdatePassword() error {
@@ -91,7 +107,15 @@ func (u *UserInput) Delete() error {
 	user := models.User{
 		Name: u.Name,
 	}
-	return user.Delete()
+	if err := user.Delete(); err == nil {
+		var rbac *RBACPlatform
+		if err := rbac.RemoveGroupPolicies(u.Name); err != nil {
+			return errors.New("Failed to delete group policies")
+		}
+	} else {
+		return err
+	}
+	return nil
 }
 
 func (u *UserInput) List(pageNum, pageSize int) ([]UsersOutput, error) {

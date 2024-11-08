@@ -79,6 +79,7 @@ type FiberConf struct {
 
 type Database struct {
 	Mysql Mysql `mapstructure:"mysql"`
+	Etcd  Etcd  `mapstructure:"etcd"`
 }
 
 type Mysql struct {
@@ -91,6 +92,12 @@ type Mysql struct {
 	MaxOpenConns int           `mapstructure:"max_open_connections"`
 	MaxLifeTime  time.Duration `mapstructure:"max_life_time"`
 	MaxIdleTime  time.Duration `mapstructure:"max_idle_time"`
+}
+
+type Etcd struct {
+	Hosts    []string `mapstructure:"hosts"`
+	User     string   `mapstructure:"user"`
+	Password string   `mapstructure:"password"`
 }
 
 func InitConfig() {

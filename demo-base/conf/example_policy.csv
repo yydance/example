@@ -1,0 +1,17 @@
+p, Admin, *, *, *
+p, ops, global, /api/v1/projects/*, *
+p, ops, global, /api/v1/users, (GET)|(POST)
+p, ops, global, /api/v1/users/:name, (GET)|(PUT)|(DELETE)|(PATCH)
+p, ops, global, /api/v1/roles, (GET)|(POST)
+p, ops, global, /api/v1/roles/:name, (GET)|(PUT)|(DELETE)|(PATCH)
+p, ops, global, /api/v1/projects, GET
+p, ops, default, /api/v1/projects/default/*, *
+p, qa, default, /api/v1/projects/default/*, GET
+p, qa, devops, /api/v1/projects/devops/*, GET
+p, dev, default, /api/v1/projects/default/roles/*, *
+p, ops, default, /api/v1/projects/default/members/*, *
+g, damon, admin, *
+g, alice, qa, default
+g, alice, qa, devops
+g, bob, dev, global
+g, bob, ops, default

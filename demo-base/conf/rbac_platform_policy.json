@@ -1,22 +1,22 @@
 {
-	"User:Management": {
-		"/api/v1/users": ["GET", "POST"],
-		"/api/v1/users/:name": ["GET","PUT","PATCH","DELETE"],
-		"/api/v1/users/:name/updatePassword": ["PUT"]
+	"Platform:Users:Management": {
+		"/api/v1/users": "(GET)|(POST)",
+		"/api/v1/users/:name": "(GET)|(PUT)|(PATCH)|(DELETE)",
+		"/api/v1/users/:name/updatePassword": "(PUT)"
 	},
-	"Roles:Management": {
-		"/api/v1/roles": ["GET", "POST"],
-		"/api/v1/roles/:name": ["GET","PUT","PATCH","DELETE"]
+	"Platform:Roles:Management": {
+		"/api/v1/roles": "(GET)|(POST)",
+		"/api/v1/roles/:name": "(GET)|(PUT)|(PATCH)|(DELETE)"
 	},
-	"Projects:Management": {
-		"/api/v1/projects": ["GET","POST"],
-		"/api/v1/projects/:name": ["GET","PUT","PATCH","DELETE"],
-		"/api/v1/projects/:name/roles": ["GET","POST"],
-		"/api/v1/projects/:name/roles/:roleName": ["GET","PUT","PATCH","DELETE"],
-		"/api/v1/projects/:name/members": ["GET","POST"],
-		"/api/v1/projects/:name/members/:memberName": ["GET","PUT","PATCH","DELETE"]
+	"Platform:Projects:Management": {
+		"/api/v1/projects": "(GET)|(POST)",
+		"/api/v1/projects/:name": "(GET)|(PUT)|(PATCH)|(DELETE)",
+		"/api/v1/projects/:name/roles": "(GET)|(POST)",
+		"/api/v1/projects/:name/roles/:roleName": "(GET)|(PUT)|(PATCH)|(DELETE)",
+		"/api/v1/projects/:name/members": "(GET)|(POST)",
+		"/api/v1/projects/:name/members/:memberName": "(GET)|(PUT)|(PATCH)|(DELETE)"
 	},
 	"Admin": {
-	    "*": ["*"]
+	    "*": "(*)"
 	}
 }

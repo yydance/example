@@ -15,7 +15,7 @@ import (
 // TODO: rbac policy schema validation
 
 type RBACPlatform struct {
-	Roles map[string]map[string][]string `json:"roles"`
+	Roles map[string]map[string]string `json:"roles"`
 }
 
 func NewRBACPlatform() *RBACPlatform {
@@ -31,9 +31,11 @@ func NewRBACPlatform() *RBACPlatform {
 	return rbac
 }
 
-// rbac 角色策略，p, sub, obj, act
-func (r *RBACPlatform) AddPolicy(role string, permissions []string) error {
-	res, err := models.CasbinEnforcer.AddPoliciesEx(r.GetPoliciesForUser(role, permissions))
+// rbac 角色策略，p, sub, dom, obj, act
+func (r *RBACPlatform) AddPolicies(role string, permissions []string) error {
+	// TODO: check role
+
+	res, err := models.CasbinEnforcer.AddPoliciesEx(r.GetPoliciesForRole(role, permissions))
 	if err != nil || !res {
 		return errors.New(fmt.Sprintf("Add Policy for role(%s) failed: %v", role, err))
 	}
@@ -61,16 +63,20 @@ func (r *RBACPlatform) UpdatePolicies(role string, permissions []string) error {
 }
 
 func (r *RBACPlatform) GetPolicies(role string) ([][]string, error) {
-	return models.CasbinEnforcer.GetFilteredPolicy(0, role)
+	return models.CasbinEnforcer.GetFilteredNamedPolicy("p", 0, role, "global")
 }
 
 func (r *RBACPlatform) RemovePolicies(role string) error {
-	res, err := models.CasbinEnforcer.DeletePermissionsForUser(role)
+	users := models.CasbinEnforcer.GetUsersForRoleInDomain(role, "global")
+	if len(users) > 0 {
+		return errors.New(fmt.Sprintf("Global role(%s) has users, please remove users first", role))
+	}
+	res, err := models.CasbinEnforcer.DeleteRolesForUserInDomain(role, "global")
 	if err != nil {
 		return err
 	}
 	if !res {
-		return errors.New(fmt.Sprintf("Policies not fount for role: %s", role))
+		return errors.New(fmt.Sprintf("Policies not fount for global role: %s", role))
 	}
 	return nil
 }
@@ -82,21 +88,12 @@ func (r *RBACPlatform) AddPoliciesEx(rules [][]string) error {
 	}
 	return nil
 }
-func (r *RBACPlatform) RemovePoliciesEx(rules [][]string) error {
-	res, err := models.CasbinEnforcer.RemovePolicies(rules)
-	if err != nil || !res {
-		return errors.New("RemovePolicies failed")
-	}
-	return nil
-}
 
-func (r *RBACPlatform) GetPoliciesForUser(user string, permissions []string) [][]string {
+func (r *RBACPlatform) GetPoliciesForRole(role string, permissions []string) [][]string {
 	res := make([][]string, 0)
 	for _, permission := range permissions {
 		for path, methods := range r.Roles[permission] {
-			for _, method := range methods {
-				res = append(res, []string{user, path, method})
-			}
+			res = append(res, []string{role, "global", path, methods})
 		}
 	}
 	return res
@@ -106,22 +103,22 @@ func (r *RBACPlatform) GetDiffPolicies(role string, permissions []string) ([][]s
 	oldDiffPolicies, newDiffPolicies := make([][]string, 0), make([][]string, 0)
 	existPolicies := make([][]string, 0)
 	oldPolicies, err := r.GetPolicies(role)
+	//filteredPolicy := models.CasbinEnforcer.
 	if err != nil {
 		return nil, nil, err
 	}
 	for _, permission := range permissions {
 		objects := r.Roles[permission]
 		for path, methods := range objects {
-			for _, method := range methods {
-				res, err := models.CasbinEnforcer.HasPolicy(role, path, method)
-				if err != nil {
-					return nil, nil, err
-				}
-				if res {
-					existPolicies = append(existPolicies, []string{role, path, method})
-				} else {
-					newDiffPolicies = append(newDiffPolicies, []string{role, path, method})
-				}
+
+			res, err := models.CasbinEnforcer.HasNamedPolicy("p", role, "global", path, methods)
+			if err != nil {
+				return nil, nil, err
+			}
+			if res {
+				existPolicies = append(existPolicies, []string{role, "global", path, methods})
+			} else {
+				newDiffPolicies = append(newDiffPolicies, []string{role, "global", path, methods})
 			}
 		}
 	}
@@ -129,8 +126,8 @@ func (r *RBACPlatform) GetDiffPolicies(role string, permissions []string) ([][]s
 	return oldDiffPolicies, newDiffPolicies, nil
 }
 
-// rbac group策略，g,user,role
-func (r *RBACPlatform) AddGroupPolicy(user string, roles []string) error {
+// rbac group策略，g,user,role,dom
+func (r *RBACPlatform) AddGroupPolicies(user string, roles []string) error {
 	res, err := models.CasbinEnforcer.AddGroupingPolicies(r.GetGroupPoliciesForUser(user, roles))
 	if err != nil || !res {
 		return errors.New(fmt.Sprintf("Add GroupPolicy for user(%s) failed: %v", user, err))
@@ -145,14 +142,14 @@ func (r *RBACPlatform) UpdateGroupPolicies(user string, roles []string) error {
 	}
 	existRoles := make([][]string, 0)
 	for _, role := range roles {
-		res, err := models.CasbinEnforcer.HasGroupingPolicy(user, role)
+		res, err := models.CasbinEnforcer.HasNamedGroupingPolicy("g", user, role, "global")
 		if err != nil {
 			return err
 		}
 		if res {
-			existRoles = append(existRoles, []string{user, role})
+			existRoles = append(existRoles, []string{user, role, "global"})
 		} else {
-			res, err := models.CasbinEnforcer.AddGroupingPolicy(user, role)
+			res, err := models.CasbinEnforcer.AddGroupingPolicy(user, role, "global")
 			if err != nil {
 				return err
 			}
@@ -175,11 +172,11 @@ func (r *RBACPlatform) UpdateGroupPolicies(user string, roles []string) error {
 }
 
 func (r *RBACPlatform) GetGroupPolicies(user string) ([][]string, error) {
-	return models.CasbinEnforcer.GetFilteredGroupingPolicy(0, user)
+	return models.CasbinEnforcer.GetFilteredNamedGroupingPolicy("g", 0, user, "global")
 }
 
 func (r *RBACPlatform) RemoveGroupPolicies(user string) error {
-	res, err := models.CasbinEnforcer.DeleteRolesForUser(user)
+	res, err := models.CasbinEnforcer.DeleteRolesForUser(user, "global")
 	if err != nil {
 		return err
 	}
@@ -192,7 +189,7 @@ func (r *RBACPlatform) RemoveGroupPolicies(user string) error {
 func (r *RBACPlatform) GetGroupPoliciesForUser(user string, roles []string) [][]string {
 	res := make([][]string, 0)
 	for _, role := range roles {
-		res = append(res, []string{user, role})
+		res = append(res, []string{user, role, "global"})
 	}
 	return res
 }
@@ -205,14 +202,14 @@ func (r *RBACPlatform) GetDiffGroupPolicies(user string, roles []string) ([][]st
 		return nil, nil, err
 	}
 	for _, role := range roles {
-		res, err := models.CasbinEnforcer.HasGroupingPolicy(user, role)
+		res, err := models.CasbinEnforcer.HasNamedGroupingPolicy("g", user, role, "global")
 		if err != nil {
 			return nil, nil, err
 		}
 		if res {
-			existGroupPolicies = append(existGroupPolicies, []string{user, role})
+			existGroupPolicies = append(existGroupPolicies, []string{user, role, "global"})
 		} else {
-			newDiffGroupPolicies = append(newDiffGroupPolicies, []string{user, role})
+			newDiffGroupPolicies = append(newDiffGroupPolicies, []string{user, role, "global"})
 		}
 	}
 	oldDiffGroupPolicies = tools.DiffSlices(oldRoles, existGroupPolicies)
