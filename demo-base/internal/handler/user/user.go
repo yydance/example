@@ -33,7 +33,7 @@ func Create(c *fiber.Ctx) error {
 
 func Get(c *fiber.Ctx) error {
 	user := service.UserInput{
-		Name: c.Params("name"),
+		Name: c.Params("username"),
 	}
 
 	u, err := user.Get()
@@ -117,7 +117,7 @@ func List(c *fiber.Ctx) error {
 
 func Delete(c *fiber.Ctx) error {
 	user := service.UserInput{
-		Name: c.Params("name"),
+		Name: c.Params("username"),
 	}
 
 	if err := user.Delete(); err != nil {

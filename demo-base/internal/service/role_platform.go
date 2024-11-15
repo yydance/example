@@ -22,15 +22,8 @@ func (r *RolePlatform) Create() error {
 		Description: r.Description,
 		Permissions: r.Permissions,
 	}
-	if err := role.Create(); err == nil {
-		var rbac *RBACPlatform
-		if err := rbac.AddPolicies(r.Name, r.Permissions); err != nil {
-			return err
-		}
-	} else {
-		return err
-	}
-	return nil
+
+	return role.Create()
 }
 
 func (r *RolePlatform) Update() error {
@@ -44,16 +37,7 @@ func (r *RolePlatform) Update() error {
 		Description: r.Description,
 		Permissions: r.Permissions,
 	}
-
-	if err := role.Update(); err == nil {
-		var rbac *RBACPlatform
-		if err := rbac.UpdatePolicies(r.Name, r.Permissions); err != nil {
-			return err
-		}
-	} else {
-		return err
-	}
-	return nil
+	return role.Update()
 }
 
 func (r *RolePlatform) Delete() error {
@@ -63,15 +47,14 @@ func (r *RolePlatform) Delete() error {
 	}
 	// rollback，删除失败，需要恢复rbac中的数据，先查询出原来的数据，再进行恢复
 
-	if err := role.Delete(); err == nil {
-		var rbac *RBACPlatform
-		if err := rbac.RemovePolicies(r.Name); err != nil {
-			return err
-		}
-	} else {
-		return err
+	return role.Delete()
+}
+
+func (r *RolePlatform) GetRoles() ([]string, error) {
+	role := models.RolePlatform{
+		Name: r.Name,
 	}
-	return nil
+	return role.Permissions, role.Find()
 }
 
 /*

@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// 废弃，未使用
 func RoutePermission() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		if c.Path() == "/live" || c.Path() == "/ready" || c.Path() == "/api/v1/login" {

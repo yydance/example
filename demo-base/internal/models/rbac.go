@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// 废弃，service.rbac关联引用一并废弃
 type RBACRule struct {
 	gorm.Model
 	Ptype string `gorm:"max=4"`

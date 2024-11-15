@@ -15,8 +15,8 @@ func (l *LoginInput) Login() (string, error) {
 	if err := validate.Struct(l); err != nil {
 		return "", err
 	}
-	u := models.User{}
-	user, ok := u.IsExist(l.Username)
+	u := models.User{Name: l.Username}
+	user, ok := u.IsExist()
 	if !ok {
 		return "", errors.New("用户不存在")
 	}

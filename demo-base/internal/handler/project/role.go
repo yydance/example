@@ -15,7 +15,7 @@ func CreateRole(c *fiber.Ctx) error {
 			"code": 400,
 		})
 	}
-	if err := role.Create(c.Params("name")); err != nil {
+	if err := role.Create(c.Params("project")); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"data": nil,
 			"msg":  err.Error(),
@@ -30,7 +30,7 @@ func CreateRole(c *fiber.Ctx) error {
 }
 
 func UpdateRole(c *fiber.Ctx) error {
-	if c.Params("roleName") == "" {
+	if c.Params("roleproject") == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"data": nil,
 			"msg":  "Invalid request body",
@@ -45,7 +45,7 @@ func UpdateRole(c *fiber.Ctx) error {
 			"code": 400,
 		})
 	}
-	if err := role.Update(c.Params("name")); err != nil {
+	if err := role.Update(c.Params("project")); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"data": nil,
 			"msg":  err.Error(),
@@ -61,9 +61,9 @@ func UpdateRole(c *fiber.Ctx) error {
 
 func DeleteRole(c *fiber.Ctx) error {
 	role := service.RoleProject{
-		Name: c.Params("roleName"),
+		Name: c.Params("roleproject"),
 	}
-	if err := role.Delete(c.Params("name")); err != nil {
+	if err := role.Delete(c.Params("project")); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"data": nil,
 			"msg":  err.Error(),

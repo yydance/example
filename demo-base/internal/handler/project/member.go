@@ -13,7 +13,7 @@ func AddMember(c *fiber.Ctx) error {
 			"msg": "Invalid request body",
 		})
 	}
-	if err := member.AddMember(c.Params("name")); err != nil {
+	if err := member.AddMember(c.Params("project")); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"msg":  err.Error(),
 			"data": nil,
@@ -31,7 +31,7 @@ func RemoveMember(c *fiber.Ctx) error {
 	member := service.ProjectMemberInput{
 		UserName: c.Params("memberName"),
 	}
-	if err := member.DeleteMember(c.Params("name")); err != nil {
+	if err := member.DeleteMember(c.Params("project")); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"msg":  err.Error(),
 			"data": nil,
@@ -52,7 +52,7 @@ func UpdateMember(c *fiber.Ctx) error {
 			"msg": "Invalid request body",
 		})
 	}
-	if err := member.UpdateMember(c.Params("name")); err != nil {
+	if err := member.UpdateMember(c.Params("project")); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"msg":  err.Error(),
 			"data": nil,

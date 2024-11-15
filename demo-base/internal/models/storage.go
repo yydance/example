@@ -2,6 +2,7 @@ package models
 
 import (
 	"demo-base/internal/conf"
+	"demo-base/internal/models/storage"
 	"demo-base/internal/utils/logger"
 	"fmt"
 	"time"
@@ -10,14 +11,22 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var (
+	DB          *gorm.DB
+	EtcdStorage = storage.NewEtcdStorage()
+	CacheStore  *GenericStore
+)
+
+// 这里未使用tls，配置文件中tls相关字段预留
 
 func InitStorage() {
 	DB = newDB(conf.MysqlConfig)
 	DB.AutoMigrate(
 		&User{},
 		&RolePlatform{}) // 自动迁移模式
-	InitCasbinEnforcer()
+	//InitCasbinEnforcer() // 废弃
+	CacheStore.Load()
+	CacheStore.Watch()
 }
 
 func newDB(config conf.Mysql) *gorm.DB {

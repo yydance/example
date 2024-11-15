@@ -1,4 +1,4 @@
-package service
+package rbac
 
 import (
 	"demo-base/internal/conf"

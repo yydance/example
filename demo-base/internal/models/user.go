@@ -1,16 +1,18 @@
 package models
 
 import (
+	"errors"
+
 	_ "gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	Name         string   `json:"name" gorm:"type:varchar(50);not null"`
-	Email        string   `json:"email" gorm:"type:varchar(50)"`
-	Password     string   `json:"password" gorm:"type:varchar(50)"`
-	RolePlatform []string `json:"role_platform" gorm:"column:role_name_id;type:json"`
+	Name     string   `json:"name" gorm:"type:varchar(50);not null"`
+	Email    string   `json:"email" gorm:"type:varchar(50)"`
+	Password string   `json:"password" gorm:"type:varchar(50)"`
+	Roles    []string `json:"roles" gorm:"column:roles;type:json"`
 	//RoleProject  string   `json:"role_project_id" gorm:"column:role_project_id;type:varchar(50)"`
 }
 
@@ -19,10 +21,16 @@ func (User) TableName() string {
 }
 
 func (u *User) Create() error {
+	if _, ok := u.IsExist(); ok {
+		return errors.New("user already exists")
+	}
 	return DB.Create(u).Error
 }
 
 func (u *User) Update() error {
+	if _, ok := u.IsExist(); !ok {
+		return errors.New("user does not exist")
+	}
 	return DB.Where("name = ?", u.Name).Updates(u).Error
 }
 
@@ -60,7 +68,7 @@ func (u *User) Count() (int64, error) {
 	return count, DB.Model(&User{}).Count(&count).Error
 }
 
-func (u *User) IsExist(name string) (User, bool) {
+func (u *User) IsExist() (User, bool) {
 	var user User
-	return user, DB.Where("name = ?", name).First(&user).RowsAffected > 0
+	return user, DB.Where("name = ?", u.Name).First(&user).RowsAffected > 0
 }

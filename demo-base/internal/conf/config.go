@@ -16,6 +16,7 @@ var (
 	Timeout            time.Duration = 10 * time.Second
 	Version                          = "0.0.1"
 	MysqlConfig        Mysql
+	EtcdConfig         Etcd //实际使用时，结构体尽量与tls.Config保持一致
 	FiberConfig        FiberConf
 	ServerConfig       Server
 	CorsConfig         Cors
@@ -23,6 +24,8 @@ var (
 	Jwt                JWT
 	LogLevel           = "debug"
 	Issuer             = "Damon Tech"
+	RolesPrefix        = ""
+	RoleGrantsPrefix   = ""
 )
 
 type Config struct {
@@ -95,9 +98,19 @@ type Mysql struct {
 }
 
 type Etcd struct {
-	Hosts    []string `mapstructure:"hosts"`
-	User     string   `mapstructure:"user"`
-	Password string   `mapstructure:"password"`
+	Endpoints   []string      `mapstructure:"endpoints"`
+	Username    string        `mapstructure:"username,omitempty"`
+	Password    string        `mapstructure:"password,omitempty"`
+	DialTimeout time.Duration `mapstructure:"dial_timeout"`
+	SkipTLS     bool          `mapstructure:"skip_tls"`
+	TLSConfig   TLSConfig     `mapstructure:",omitempty"`
+	Prefix      string        `mapstructure:"prefix,omitempty"`
+}
+
+type TLSConfig struct {
+	CertFile string `mapstructure:"cert_file,omitempty"`
+	KeyFile  string `mapstructure:"key_file,omitempty"`
+	CaFile   string `mapstructure:"ca_file,omitempty"`
 }
 
 func InitConfig() {
@@ -127,10 +140,32 @@ func setupConfig() {
 		RBACProjectPolicy = WorkDir + "/conf/rbac_project_policy.json"
 	}
 
+	config.Database.Etcd.DialTimeout = time.Duration(config.Database.Etcd.DialTimeout.Seconds())
+	if config.Database.Etcd.Endpoints == nil {
+		config.Database.Etcd.Endpoints = []string{"127.0.0.1:2379"}
+	}
+	if config.Database.Etcd.Prefix == "" {
+		config.Database.Etcd.Prefix = "/demo_base"
+	}
+	if config.Database.Etcd.SkipTLS {
+		EtcdConfig = Etcd{
+			Endpoints:   config.Database.Etcd.Endpoints,
+			Username:    config.Database.Etcd.Username,
+			Password:    config.Database.Etcd.Password,
+			DialTimeout: config.Database.Etcd.DialTimeout,
+			SkipTLS:     config.Database.Etcd.SkipTLS,
+			Prefix:      config.Database.Etcd.Prefix,
+		}
+	} else {
+		EtcdConfig = config.Database.Etcd
+	}
+
 	MysqlConfig = config.Database.Mysql
 	FiberConfig = config.Server.FiberConfig
 	CorsConfig = config.Server.Cors
 	LogConfig = config.Server.Log
 	ServerConfig = config.Server
 	Jwt = config.Server.JWT
+	RolesPrefix = EtcdConfig.Prefix + "/roles"
+	RoleGrantsPrefix = EtcdConfig.Prefix + "/role_grants"
 }

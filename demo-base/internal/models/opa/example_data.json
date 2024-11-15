@@ -1,5 +1,5 @@
 {
-    "user_roles": {
+    "roles": {
         "damon": {
           "global": ["Platform:Users:View","Platform:Projects:View"],
           "qa": ["Proj:Roles:Management"]

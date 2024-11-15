@@ -57,13 +57,21 @@ database:
     db: "demo_base"
     max_idle_connections: 10
     max_open_connections: 100
-    max_life_time: 600 #秒
-    max_idle_time: 300 #秒
+    max_life_time: 600 # 秒
+    max_idle_time: 300 # 秒
   # etcd, used to store etcd watcher for casbin
   etcd:
-    hosts: "127.0.0.1:2379;127.0.0.1:2380" # 带端口，多个用分号（;）隔开
-    user: ""
+    endpoints:
+    - "127.0.0.1:2379"
+    - "127.0.0.1:2380" # 带端口，多个用分号（;）隔开
+    username: ""
     password: ""
+    dial_timeout: 5 # 秒
+    skip_tls: true
+    cert_file: "./certs/etcd.crt"
+    key_file: "./certs/etcd.key"
+    ca_file: "./certs/ca.crt"
+    prefix: "/demo_base"
 
   # redis:
 

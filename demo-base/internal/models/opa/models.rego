@@ -1,4 +1,4 @@
-package app.rbac
+package rbac
 
 import rego.v1
 
@@ -36,7 +36,7 @@ allow if {
 
 user_roles := role if {
     some kv 
-    kv = data.user_roles[input.username]
+    kv = data.roles[input.username]
     some role 
     role = kv[input.domain]
 }

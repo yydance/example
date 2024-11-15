@@ -54,7 +54,7 @@ func Update(c *fiber.Ctx) error {
 
 func Delete(c *fiber.Ctx) error {
 	project := service.ProjectInput{
-		Name: c.Params("name"),
+		Name: c.Params("project"),
 	}
 	if err := project.Delete(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -72,7 +72,7 @@ func Delete(c *fiber.Ctx) error {
 
 func List(c *fiber.Ctx) error {
 	project := service.ProjectInput{}
-	projects, err := project.List(c.QueryInt("page_num", 1), c.QueryInt("pageSize", 10))
+	projects, err := project.List(c.QueryInt("page_num", 1), c.QueryInt("page_size", 10))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"data":   nil,

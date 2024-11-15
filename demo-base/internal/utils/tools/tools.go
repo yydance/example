@@ -4,6 +4,7 @@ import (
 	"demo-base/internal/utils/logger"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 func StrToUint(str string) uint {
@@ -56,4 +57,9 @@ func DiffSlices(a, b [][]string) [][]string {
 // TODO: check slice contains some
 func CheckSliceContains(slice []string, item string) bool {
 	return false
+}
+
+func StrToArray(str string, sep string) (res []string) {
+	res = strings.Split(str, sep)
+	return res
 }
