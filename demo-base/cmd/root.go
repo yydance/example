@@ -66,11 +66,11 @@ func mainCmd() error {
 
 	select {
 	case <-quit:
-		fmt.Println("app shutdown...")
+		logger.Info("app shutdown...")
 		stopEtcdConnectionChecker()
 		app.ShutdownWithTimeout(30 * time.Second)
 	case err := <-errSig:
-		fmt.Printf("app start error: %s", err)
+		logger.Errorf("app start error: %s", err)
 		return err
 	}
 	return nil
@@ -106,4 +106,8 @@ func etcdCheck() context.CancelFunc {
 	}()
 
 	return cancle
+}
+
+func printConfig() {
+	fmt.Println("config: ")
 }
