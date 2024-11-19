@@ -1,13 +1,18 @@
 package models
 
-import "errors"
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
 
 type RouteUri string
 
 type RolePlatform struct {
+	gorm.Model
 	Name        string   `json:"name" gorm:"type:varchar(64);not null"`
 	Description string   `json:"description" gorm:"type:varchar(255)"`
-	Permissions []string `json:"permissions" gorm:"type:json"`
+	Permissions []string `json:"permissions" gorm:"serializer:json"`
 }
 
 func (RolePlatform) TableName() string {
@@ -17,7 +22,9 @@ func (RolePlatform) TableName() string {
 func (r *RolePlatform) Create() error {
 	if r.IsExist() {
 		return errors.New("平台角色已存在")
+		//logger.Warnf("平台角色(%s)已存在", r.Name)
 	}
+
 	return DB.Create(r).Error
 }
 func (r *RolePlatform) Update() error {
@@ -33,7 +40,8 @@ func (r *RolePlatform) List(pageNum, pageLimit int) ([]RolePlatform, error) {
 }
 
 func (r *RolePlatform) Find() error {
-	return DB.First(r, r.Name).Error
+	return DB.Where("name = ?", r.Name).First(r).Error
+	//return DB.First(r, r.Name).Error
 }
 
 var permissions map[string]RouteUri = map[string]RouteUri{

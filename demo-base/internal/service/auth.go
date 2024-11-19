@@ -3,6 +3,7 @@ package service
 import (
 	"demo-base/internal/models"
 	"demo-base/internal/utils/jwt"
+	"demo-base/internal/utils/logger"
 	"errors"
 )
 
@@ -23,11 +24,9 @@ func (l *LoginInput) Login() (string, error) {
 	if user.Password != l.Password {
 		return "", errors.New("密码错误")
 	}
-	// 生成token
-	var jwt *jwt.JWT
-	token, err := jwt.GenerateToken(l.Username)
-	if err != nil {
-		return "", errors.New("生成token失败")
-	}
-	return token, nil
+	// 生成签名
+	signature := jwt.NewJWT(l.Username)
+
+	logger.Infof("user %s login success, token: %s", l.Username, signature)
+	return signature, nil
 }

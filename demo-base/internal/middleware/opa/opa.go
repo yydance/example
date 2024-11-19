@@ -12,7 +12,6 @@ import (
 func OPA() fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
-		var jwt *jwt.JWT
 		claims, err := jwt.ParseToken(c.Get("Authorization"))
 		if err != nil || claims == nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -21,7 +20,14 @@ func OPA() fiber.Handler {
 				"data": nil,
 			})
 		}
-		_ = genPolicy(claims.UserName)
+		if err := genPolicy(claims.UserName); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"code": 500,
+				"msg":  err.Error(),
+				"data": nil,
+			})
+		}
+
 		ctx := context.Background()
 		input_data := map[string]interface{}{
 			"username": claims.UserName,
@@ -31,9 +37,10 @@ func OPA() fiber.Handler {
 		}
 		//store := inmem.NewFromReader(bytes.NewBufferString(policies))
 		store := inmem.NewFromObject(policies)
+
 		r := rego.New(
 			rego.Query("data.authz.allow"),
-			rego.Module("example.rego", module),
+			rego.Module("authz.rego", module),
 			rego.Store(store),
 			rego.Input(input_data),
 		)
@@ -45,6 +52,7 @@ func OPA() fiber.Handler {
 				"data": nil,
 			})
 		}
+
 		if res[0].Expressions[0].Value == true {
 			return c.Next()
 		}

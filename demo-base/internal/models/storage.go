@@ -13,7 +13,7 @@ import (
 
 var (
 	DB          *gorm.DB
-	EtcdStorage = storage.NewEtcdStorage()
+	EtcdStorage *storage.EtcdStorage
 	CacheStore  *GenericStore
 )
 
@@ -25,6 +25,8 @@ func InitStorage() {
 		&User{},
 		&RolePlatform{}) // 自动迁移模式
 	//InitCasbinEnforcer() // 废弃
+	EtcdStorage = storage.NewEtcdStorage()
+	CacheStore = NewGenericStore()
 	CacheStore.Load()
 	CacheStore.Watch()
 }

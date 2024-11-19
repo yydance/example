@@ -4,7 +4,6 @@ import (
 	"context"
 	"demo-base/internal/conf"
 	"demo-base/internal/utils/logger"
-	"errors"
 	"fmt"
 	"time"
 
@@ -42,17 +41,17 @@ func NewEtcdStorage() *EtcdStorage {
 	}
 }
 
-func (e *EtcdStorage) Init(ctx context.Context) error {
-	err := e.Set(ctx, conf.EtcdConfig.Prefix, []byte(SkippedValueEtcdInitDir), 0)
+func (e *EtcdStorage) Init() {
+	err := e.Set(context.TODO(), conf.EtcdConfig.Prefix, []byte(SkippedValueEtcdInitDir), 0)
 	if err != nil {
-		return errors.New("Init etcd prefix failed")
+		logger.Error("Init etcd prefix failed")
 	}
 
-	err = e.Set(ctx, conf.RolesPrefix, []byte(SkippedValueEtcdInitDir), 0)
+	err = e.Set(context.TODO(), conf.RolesPrefix, []byte(SkippedValueEtcdInitDir), 0)
 	if err != nil {
-		return errors.New("Init etcd roles prefix failed")
+		logger.Error("Init etcd roles prefix failed")
 	}
-	return nil
+	logger.Info("Init etcd prefix success")
 }
 
 func (e *EtcdStorage) Get(ctx context.Context, key string) ([]byte, error) {
@@ -71,18 +70,25 @@ func (e *EtcdStorage) Get(ctx context.Context, key string) ([]byte, error) {
 	return resp.Kvs[0].Value, nil
 }
 
+// set方法的ttl参数为0表示永久
 func (e *EtcdStorage) Set(ctx context.Context, key string, value []byte, exp time.Duration) error {
 	if key == "" || value == nil {
 		logger.Error("key or value is empty")
 		return nil
 	}
+
 	lease, err := e.Client.Grant(ctx, int64(exp.Seconds()))
 	if err != nil {
 		return err
 	}
-	_, err = e.Client.Put(ctx, key, string(value), clientv3.WithLease(lease.ID))
+	if exp == 0 {
+		_, err = e.Client.Put(ctx, key, string(value))
+	} else {
+		_, err = e.Client.Put(ctx, key, string(value), clientv3.WithLease(lease.ID))
+	}
+
 	if err != nil {
-		logger.Errorf("etcd put failed: %v", err)
+		logger.Errorf("etcd put failed: %s", err.Error())
 		return fmt.Errorf("etcd put failed: %s", err)
 	}
 	return nil
@@ -186,4 +192,12 @@ func (e *EtcdStorage) Watch(ctx context.Context, key string) <-chan WatchRespons
 		close(ch)
 	}()
 	return ch
+}
+
+func (e *EtcdStorage) Close() error {
+	return e.Client.Close()
+}
+
+func (e *EtcdStorage) GetClient() *clientv3.Client {
+	return e.Client
 }

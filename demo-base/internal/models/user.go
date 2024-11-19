@@ -12,7 +12,7 @@ type User struct {
 	Name     string   `json:"name" gorm:"type:varchar(50);not null"`
 	Email    string   `json:"email" gorm:"type:varchar(50)"`
 	Password string   `json:"password" gorm:"type:varchar(50)"`
-	Roles    []string `json:"roles" gorm:"column:roles;type:json"`
+	Roles    []string `json:"roles" gorm:"column:roles;serializer:json"`
 	//RoleProject  string   `json:"role_project_id" gorm:"column:role_project_id;type:varchar(50)"`
 }
 
@@ -43,7 +43,8 @@ func (u *User) Delete() error {
 }
 
 func (u *User) Find() error {
-	return DB.First(u, u.Name).Error
+	//return DB.First(u, u.Name).Error
+	return DB.Where("name = ?", u.Name).First(u).Error
 }
 func (u *User) FindAllByName() ([]string, error) {
 	var names []string

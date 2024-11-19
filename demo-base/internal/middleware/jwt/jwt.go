@@ -11,7 +11,10 @@ import (
 func Authentication() fiber.Handler {
 
 	return func(c *fiber.Ctx) error {
-		var jwt *jwt.JWT
+		if c.Path() == "/api/v1/login" {
+			return c.Next()
+		}
+
 		claims, err := jwt.ParseToken(c.Get("Authorization"))
 		if err != nil || claims == nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

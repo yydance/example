@@ -16,7 +16,7 @@ func RoutePermission() fiber.Handler {
 			return c.Next()
 		}
 		// 解析token获取用户名，并鉴权
-		var jwt *jwt.JWT
+
 		claims, err := jwt.ParseToken(c.Get("Authorization"))
 		if err != nil || claims == nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

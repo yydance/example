@@ -65,12 +65,11 @@ func InitRouter() *fiber.App {
 		ReadinessEndpoint: "/ready",
 	}))
 	app.Get("/metrics", monitor.New())
-
 	app.Use(jwt.Authentication())
 
 	// Routes
 	routers := app.Group("/api/v1")
-	app.Post("/login", handler.Login)
+	routers.Post("/login", handler.Login)
 	/*
 		{
 			routers.Get("/ping", system.Ping)

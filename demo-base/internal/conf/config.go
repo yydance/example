@@ -140,7 +140,7 @@ func setupConfig() {
 		RBACProjectPolicy = WorkDir + "/conf/rbac_project_policy.json"
 	}
 
-	config.Database.Etcd.DialTimeout = time.Duration(config.Database.Etcd.DialTimeout.Seconds())
+	config.Database.Etcd.DialTimeout = config.Database.Etcd.DialTimeout * time.Second
 	if config.Database.Etcd.Endpoints == nil {
 		config.Database.Etcd.Endpoints = []string{"127.0.0.1:2379"}
 	}

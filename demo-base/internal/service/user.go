@@ -4,6 +4,7 @@ import (
 	"context"
 	"demo-base/internal/conf"
 	"demo-base/internal/models"
+	"demo-base/internal/utils/logger"
 	"errors"
 
 	"github.com/bytedance/sonic"
@@ -37,6 +38,7 @@ func (u *UserInput) Create() error {
 	if err != nil || u.Password == "" {
 		return errors.New("invalid input")
 	}
+
 	user := models.User{
 		Name:     u.Name,
 		Email:    u.Email,
@@ -47,9 +49,10 @@ func (u *UserInput) Create() error {
 	if err := user.Create(); err != nil {
 		return err
 	}
+
 	permissions, err := u.GetAllPermissions()
 	if err != nil {
-		return errors.New("Failed to get permissions")
+		return errors.New("failed to get permissions")
 	}
 	// 将用户名u.Name、预定义角色写入etcd global策略
 	// key: /prefix/roles/{u.name}/
@@ -72,6 +75,7 @@ func (u *UserInput) Create() error {
 	if err != nil {
 		return err
 	}
+
 	if err := models.EtcdStorage.Set(context.TODO(), key, roles, 0); err != nil {
 		return err
 	}
@@ -101,7 +105,7 @@ func (u *UserInput) Update() error {
 	}
 	permissions, err := u.GetAllPermissions()
 	if err != nil {
-		return errors.New("Failed to get permissions")
+		return errors.New("failed to get permissions")
 	}
 	key := conf.RolesPrefix + "/" + u.Name
 	var value map[string][]string
@@ -191,18 +195,49 @@ func (u *UserInput) List(pageNum, pageSize int) ([]UsersOutput, error) {
 func (u *UserInput) GetAllPermissions() ([]string, error) {
 	var r = RolePlatform{}
 	permissions := []string{}
-	for _, role := range u.Roles {
-		r.Name = role
+	for i := range u.Roles {
+		r.Name = u.Roles[i]
 		roles, err := r.GetRoles()
 		if err != nil {
 			return nil, err
 		}
 		permissions = append(permissions, roles...)
 	}
+
 	return permissions, nil
 }
 
 func (u *UserInput) IsExist() (models.User, bool) {
 	var user = models.User{Name: u.Name}
 	return user.IsExist()
+}
+
+func InitAdmin() {
+	// create admin role
+	logger.Info("init admin role")
+	role := RolePlatform{
+		Name: "Admin",
+		Permissions: []string{
+			"Platform:Admin",
+		},
+		Description: "Admin role",
+	}
+	if err := role.Create(); err != nil {
+		logger.Warnf("failed to create admin role: %s", err.Error())
+	} else {
+		logger.Info("init admin role success")
+	}
+	// create admin user
+	admin := UserInput{
+		Name:     "admin",
+		Password: "admin0416",
+		Roles:    []string{"Admin"},
+		Email:    "admin@platform.com",
+	}
+	if err := admin.Create(); err != nil {
+		//return fmt.Errorf("failed to create admin user: %s", err.Error())
+		logger.Warnf("failed to create admin user: %s", err.Error())
+	} else {
+		logger.Info("init admin user success")
+	}
 }
