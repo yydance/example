@@ -48,6 +48,10 @@ func mainCmd() error {
 	conf.InitConfig()
 	models.InitStorage()
 
+	printConfig()
+	models.EtcdStorage.Init()
+	service.InitAdmin()
+
 	errSig := make(chan error, 2)
 	app := routers.InitRouter()
 	go func() {
@@ -58,8 +62,6 @@ func mainCmd() error {
 	}()
 
 	stopEtcdConnectionChecker := etcdCheck()
-	models.EtcdStorage.Init()
-	service.InitAdmin()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
@@ -100,6 +102,8 @@ func etcdCheck() context.CancelFunc {
 					logger.Warnf("etcd connection recovered, unavailable count: %d", unavailable)
 					unavailable = 0
 					// TODO: 重载etcd中的key/value到内存中
+				} else {
+					logger.Debug("etcd connection is healthy")
 				}
 			}
 		}
@@ -109,5 +113,14 @@ func etcdCheck() context.CancelFunc {
 }
 
 func printConfig() {
-	fmt.Println("config: ")
+	// 输出配置信息，监听地址端口、日志级别、数据库配置（MySQL、etcd地址端口)等
+	msg := fmt.Sprintf("listen: %s, port: %s, log level: %s, mysql: %s:%d, etcd: %s",
+		conf.ServerConfig.Listen.Host,
+		conf.ServerConfig.Listen.Port,
+		conf.LogLevel,
+		conf.MysqlConfig.Host,
+		conf.MysqlConfig.Port,
+		conf.EtcdConfig.Endpoints,
+	)
+	logger.Infof("config, %s", msg)
 }
