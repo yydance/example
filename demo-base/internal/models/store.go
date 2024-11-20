@@ -44,7 +44,7 @@ func (s *GenericStore) ValueToMap(key any) (value map[string]any, err error) {
 }
 
 // 注意：这里key是etcd key的全路径，占用内存可能较大，可以只存储key的最后一部分（即用户名）
-func (s *GenericStore) Load() error {
+func (s *GenericStore) InitData() error {
 	keyPairs, err := EtcdStorage.List(context.TODO(), conf.RolesPrefix)
 	if err != nil {
 		return err

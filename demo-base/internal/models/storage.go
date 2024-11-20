@@ -27,7 +27,7 @@ func InitStorage() {
 	//InitCasbinEnforcer() // 废弃
 	EtcdStorage = storage.NewEtcdStorage()
 	CacheStore = NewGenericStore()
-	CacheStore.Load()
+	CacheStore.InitData()
 	CacheStore.Watch()
 }
 
