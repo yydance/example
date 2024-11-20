@@ -77,37 +77,38 @@ func InitRouter() *fiber.App {
 			routers.Get("/info", system.Info)
 		}
 	*/
+	routers.Use(opa.OPA())
 	userRouters := routers.Group("/users")
 	{
-		userRouters.Get("", opa.OPA(), user.List)
-		userRouters.Post("", opa.OPA(), user.Create)
-		userRouters.Get("/:username", opa.OPA(), user.Get)
-		userRouters.Put("/:username", opa.OPA(), user.Update)
-		userRouters.Put("/:username/password", opa.OPA(), user.UpdatePassword)
-		userRouters.Delete("/:username", opa.OPA(), user.Delete)
+		userRouters.Get("", user.List)
+		userRouters.Post("", user.Create)
+		userRouters.Get("/:username", user.Get)
+		userRouters.Put("/:username", user.Update)
+		userRouters.Put("/:username/password", user.UpdatePassword)
+		userRouters.Delete("/:username", user.Delete)
 	}
 	roleRouters := routers.Group("/roles")
 	{
 		//roleRouters.Get("/list", role.GetAll)
-		roleRouters.Post("", opa.OPA(), role.Create)
+		roleRouters.Post("", role.Create)
 		//roleRouters.Get("/detail/:id", user.Get)
-		roleRouters.Put("/:roleplatform", opa.OPA(), role.Update)
+		roleRouters.Put("/:roleplatform", role.Update)
 		//roleRouters.Delete("/delete/:id", user.Delete)
 	}
 
 	projectRouters := routers.Group("/projects")
 	{
-		projectRouters.Get("", opa.OPA(), project.List)
-		projectRouters.Post("", opa.OPA(), project.Create)
+		projectRouters.Get("", project.List)
+		projectRouters.Post("", project.Create)
 		//projectRouters.Get("/detail/:name", project.Get)
-		projectRouters.Put("/:project", opa.OPA(), project.Update)
-		projectRouters.Delete("/:project", opa.OPA(), project.Delete)
-		projectRouters.Post("/:project/roles", opa.OPA(), project.CreateRole)
-		projectRouters.Delete("/:project/roles/:roleproject", opa.OPA(), project.DeleteRole)
-		projectRouters.Put("/:project/roles/:roleproject", opa.OPA(), project.UpdateRole)
-		projectRouters.Post("/:project/members", opa.OPA(), project.AddMember)
-		projectRouters.Put("/:project/members/:member", opa.OPA(), project.UpdateMember)
-		projectRouters.Delete("/:project/members/:member", opa.OPA(), project.RemoveMember)
+		projectRouters.Put("/:project", project.Update)
+		projectRouters.Delete("/:project", project.Delete)
+		projectRouters.Post("/:project/roles", project.CreateRole)
+		projectRouters.Delete("/:project/roles/:roleproject", project.DeleteRole)
+		projectRouters.Put("/:project/roles/:roleproject", project.UpdateRole)
+		projectRouters.Post("/:project/members", project.AddMember)
+		projectRouters.Put("/:project/members/:member", project.UpdateMember)
+		projectRouters.Delete("/:project/members/:member", project.RemoveMember)
 	}
 	/*
 		appRouters := routers.Group("/apps")
