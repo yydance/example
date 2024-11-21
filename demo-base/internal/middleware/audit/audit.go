@@ -8,11 +8,3 @@ package audit
 操作结果：ctx.Status()
 例子：bob 2022-01-01 12:00:00 登录系统 成功 （192.168.1.1 Windows 10 Chrome 96.0.4664.45）
 */
-
-var (
-	options = map[string]map[string]string{
-		"/api/v1/login":  {"POST": "登录系统"},
-		"/api/v1/logout": {"PUT": "退出系统"},
-		"/api/v1/users":  {"GET": "查看用户列表", "POST": "创建用户"},
-	}
-)

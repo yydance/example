@@ -6,7 +6,7 @@ server:
 
   # TODO: log rotation
   log:
-    level: "debug"
+    level: "info"
     error_path: "./logs/error.log"
     access_path: "./logs/access.log"
     max_size: 100

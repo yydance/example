@@ -140,6 +140,10 @@ func setupConfig() {
 		RBACProjectPolicy = WorkDir + "/conf/rbac_project_policy.json"
 	}
 
+	if config.Server.Log.Level != "" {
+		LogLevel = config.Server.Log.Level
+	}
+
 	config.Database.Etcd.DialTimeout = config.Database.Etcd.DialTimeout * time.Second
 	if config.Database.Etcd.Endpoints == nil {
 		config.Database.Etcd.Endpoints = []string{"127.0.0.1:2379"}

@@ -2,108 +2,146 @@ package logger
 
 import (
 	"demo-base/internal/conf"
+	"os"
+	"time"
 
 	"github.com/gofiber/contrib/fiberzap/v2"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-func LogLevel() []zapcore.Level {
-	switch conf.LogConfig.Level {
-	case "debug", "info":
-		return []zapcore.Level{zapcore.ErrorLevel, zapcore.WarnLevel, zapcore.InfoLevel}
-	case "warn":
-		return []zapcore.Level{zapcore.WarnLevel, zapcore.InfoLevel}
-	case "error", "fatal", "panic":
-		return []zapcore.Level{zapcore.ErrorLevel}
-	default:
-		return []zapcore.Level{zapcore.InfoLevel, zapcore.WarnLevel, zapcore.ErrorLevel}
-	}
+func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+	enc.AppendString(t.Format("2006-01-02T15:04:05.000Z"))
 }
 
-var Logger = fiberzap.NewLogger(fiberzap.LoggerConfig{
-	ExtraKeys: []string{"requestid"},
-})
+func customLevelEnabler(lvl zapcore.Level) bool {
+	if conf.LogLevel == "info" {
+		switch lvl {
+		case zapcore.DebugLevel:
+			return false
+		default:
+			return true
+		}
+	}
+	if conf.LogLevel == "warn" {
+		switch lvl {
+		case zapcore.DebugLevel, zapcore.InfoLevel:
+			return false
+		default:
+			return true
+		}
+	}
+	if conf.LogLevel == "error" {
+		switch lvl {
+		case zapcore.DebugLevel, zapcore.InfoLevel, zapcore.WarnLevel:
+			return false
+		default:
+			return true
+		}
+	}
+	return true
+}
+
+func NewCustomLogger() *zap.Logger {
+	encodeConfig := zap.NewProductionEncoderConfig()
+	encodeConfig.EncodeTime = customTimeEncoder
+	enabler := zap.LevelEnablerFunc(customLevelEnabler)
+
+	core := zapcore.NewCore(
+		zapcore.NewJSONEncoder(encodeConfig),
+		zapcore.Lock(os.Stdout),
+		enabler,
+	)
+	return zap.New(core)
+}
+
+var (
+	logger = fiberzap.NewLogger(fiberzap.LoggerConfig{
+		ExtraKeys: []string{"requestid"},
+		SetLogger: NewCustomLogger(),
+	})
+)
 
 func Trace(v ...interface{}) {
-	Logger.Trace(v...)
+	logger.Trace(v...)
 }
 
 func Debug(v ...interface{}) {
-	Logger.Debug(v...)
+	logger.Debug(v...)
 }
 
 func Info(v ...interface{}) {
-	Logger.Info(v...)
+	logger.Info(v...)
 }
 
 func Warn(v ...interface{}) {
-	Logger.Warn(v...)
+	logger.Warn(v...)
 }
 
 func Error(v ...interface{}) {
-	Logger.Error(v...)
+	logger.Error(v...)
 }
 
 func Fatal(v ...interface{}) {
-	Logger.Fatal(v...)
+	logger.Fatal(v...)
 }
 
 func Panic(v ...interface{}) {
-	Logger.Panic(v...)
+	logger.Panic(v...)
 }
 
 func Tracef(format string, v ...interface{}) {
-	Logger.Tracef(format, v...)
+	logger.Tracef(format, v...)
 }
 
 func Debugf(format string, v ...interface{}) {
-	Logger.Debugf(format, v...)
+	logger.Debugf(format, v...)
 }
 
 func Infof(format string, v ...interface{}) {
-	Logger.Infof(format, v...)
+	logger.Infof(format, v...)
 }
 
 func Warnf(format string, v ...interface{}) {
-	Logger.Warnf(format, v...)
+	logger.Warnf(format, v...)
 }
 
 func Errorf(format string, v ...interface{}) {
-	Logger.Errorf(format, v...)
+	logger.Errorf(format, v...)
 }
 
 func Fatalf(format string, v ...interface{}) {
-	Logger.Fatalf(format, v...)
+	logger.Fatalf(format, v...)
 }
 
 func Panicf(format string, v ...interface{}) {
-	Logger.Panicf(format, v...)
+	logger.Panicf(format, v...)
 }
 
 func Tracew(msg string, keysAndValues ...interface{}) {
-	Logger.Tracew(msg, keysAndValues...)
+	logger.Tracew(msg, keysAndValues...)
 }
 
 func Debugw(msg string, keysAndValues ...interface{}) {
-	Logger.Debugw(msg, keysAndValues...)
+	logger.Debugw(msg, keysAndValues...)
 }
 
 func Infow(msg string, keysAndValues ...interface{}) {
-	Logger.Infow(msg, keysAndValues...)
+	logger.Infow(msg, keysAndValues...)
 }
 
 func Warnw(msg string, keysAndValues ...interface{}) {
-	Logger.Warnw(msg, keysAndValues...)
+	logger.Warnw(msg, keysAndValues...)
 }
 
 func Errorw(msg string, keysAndValues ...interface{}) {
-	Logger.Errorw(msg, keysAndValues...)
+	logger.Errorw(msg, keysAndValues...)
 }
 
 func Fatalw(msg string, keysAndValues ...interface{}) {
-	Logger.Fatalw(msg, keysAndValues...)
+	logger.Fatalw(msg, keysAndValues...)
 }
 
 func Panicw(msg string, keysAndValues ...interface{}) {
-	Logger.Panicw(msg, keysAndValues...)
+	logger.Panicw(msg, keysAndValues...)
 }
