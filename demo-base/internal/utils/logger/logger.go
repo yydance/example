@@ -3,145 +3,156 @@ package logger
 import (
 	"demo-base/internal/conf"
 	"os"
-	"time"
 
 	"github.com/gofiber/contrib/fiberzap/v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(t.Format("2006-01-02T15:04:05.000Z"))
-}
+const (
+	AccessLog = iota
+	ErrorLog
+)
 
-func customLevelEnabler(lvl zapcore.Level) bool {
-	if conf.LogLevel == "info" {
-		switch lvl {
-		case zapcore.DebugLevel:
-			return false
-		default:
-			return true
-		}
-	}
-	if conf.LogLevel == "warn" {
-		switch lvl {
-		case zapcore.DebugLevel, zapcore.InfoLevel:
-			return false
-		default:
-			return true
-		}
-	}
-	if conf.LogLevel == "error" {
-		switch lvl {
-		case zapcore.DebugLevel, zapcore.InfoLevel, zapcore.WarnLevel:
-			return false
-		default:
-			return true
-		}
-	}
-	return true
-}
-
-func NewCustomLogger() *zap.Logger {
+func NewCustomLogger(logType int) *zap.Logger {
 	encodeConfig := zap.NewProductionEncoderConfig()
-	encodeConfig.EncodeTime = customTimeEncoder
-	enabler := zap.LevelEnablerFunc(customLevelEnabler)
+	encodeConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	writeSyncer := fileWriter(logType)
+	logLevel := getLogLevel()
 
 	core := zapcore.NewCore(
 		zapcore.NewJSONEncoder(encodeConfig),
-		zapcore.Lock(os.Stdout),
-		enabler,
+		writeSyncer,
+		logLevel,
 	)
 	return zap.New(core)
 }
 
-var (
-	logger = fiberzap.NewLogger(fiberzap.LoggerConfig{
+func getLogLevel() zapcore.LevelEnabler {
+	level := zapcore.WarnLevel
+	switch conf.LogLevel {
+	case "debug":
+		level = zapcore.DebugLevel
+	case "info":
+		level = zapcore.InfoLevel
+	case "warn":
+		level = zapcore.WarnLevel
+	case "error":
+		level = zapcore.ErrorLevel
+	case "fatal":
+		level = zapcore.FatalLevel
+	}
+
+	return level
+
+}
+
+func fileWriter(logType int) zapcore.WriteSyncer {
+	logPath := conf.ErrorLog
+	if logType == AccessLog {
+		logPath = conf.AccessLog
+	}
+	if logPath == "/dev/stdout" {
+		return zapcore.Lock(os.Stdout)
+	}
+	if logPath == "/dev/stderr" {
+		return zapcore.Lock(os.Stderr)
+	}
+
+	writer, _, err := zap.Open(logPath)
+	if err != nil {
+		panic(err)
+	}
+	return writer
+}
+
+func newLoggerConfig() *fiberzap.LoggerConfig {
+	return fiberzap.NewLogger(fiberzap.LoggerConfig{
 		ExtraKeys: []string{"requestid"},
-		SetLogger: NewCustomLogger(),
+		SetLogger: NewCustomLogger(ErrorLog),
 	})
-)
+}
 
 func Trace(v ...interface{}) {
-	logger.Trace(v...)
+	newLoggerConfig().Trace(v...)
 }
 
 func Debug(v ...interface{}) {
-	logger.Debug(v...)
+	newLoggerConfig().Debug(v...)
 }
 
 func Info(v ...interface{}) {
-	logger.Info(v...)
+	newLoggerConfig().Info(v...)
 }
 
 func Warn(v ...interface{}) {
-	logger.Warn(v...)
+	newLoggerConfig().Warn(v...)
 }
 
 func Error(v ...interface{}) {
-	logger.Error(v...)
+	newLoggerConfig().Error(v...)
 }
 
 func Fatal(v ...interface{}) {
-	logger.Fatal(v...)
+	newLoggerConfig().Fatal(v...)
 }
 
 func Panic(v ...interface{}) {
-	logger.Panic(v...)
+	newLoggerConfig().Panic(v...)
 }
 
 func Tracef(format string, v ...interface{}) {
-	logger.Tracef(format, v...)
+	newLoggerConfig().Tracef(format, v...)
 }
 
 func Debugf(format string, v ...interface{}) {
-	logger.Debugf(format, v...)
+	newLoggerConfig().Debugf(format, v...)
 }
 
 func Infof(format string, v ...interface{}) {
-	logger.Infof(format, v...)
+	newLoggerConfig().Infof(format, v...)
 }
 
 func Warnf(format string, v ...interface{}) {
-	logger.Warnf(format, v...)
+	newLoggerConfig().Warnf(format, v...)
 }
 
 func Errorf(format string, v ...interface{}) {
-	logger.Errorf(format, v...)
+	newLoggerConfig().Errorf(format, v...)
 }
 
 func Fatalf(format string, v ...interface{}) {
-	logger.Fatalf(format, v...)
+	newLoggerConfig().Fatalf(format, v...)
 }
 
 func Panicf(format string, v ...interface{}) {
-	logger.Panicf(format, v...)
+	newLoggerConfig().Panicf(format, v...)
 }
 
 func Tracew(msg string, keysAndValues ...interface{}) {
-	logger.Tracew(msg, keysAndValues...)
+	newLoggerConfig().Tracew(msg, keysAndValues...)
 }
 
 func Debugw(msg string, keysAndValues ...interface{}) {
-	logger.Debugw(msg, keysAndValues...)
+	newLoggerConfig().Debugw(msg, keysAndValues...)
 }
 
 func Infow(msg string, keysAndValues ...interface{}) {
-	logger.Infow(msg, keysAndValues...)
+	newLoggerConfig().Infow(msg, keysAndValues...)
 }
 
 func Warnw(msg string, keysAndValues ...interface{}) {
-	logger.Warnw(msg, keysAndValues...)
+	newLoggerConfig().Warnw(msg, keysAndValues...)
 }
 
 func Errorw(msg string, keysAndValues ...interface{}) {
-	logger.Errorw(msg, keysAndValues...)
+	newLoggerConfig().Errorw(msg, keysAndValues...)
 }
 
 func Fatalw(msg string, keysAndValues ...interface{}) {
-	logger.Fatalw(msg, keysAndValues...)
+	newLoggerConfig().Fatalw(msg, keysAndValues...)
 }
 
 func Panicw(msg string, keysAndValues ...interface{}) {
-	logger.Panicw(msg, keysAndValues...)
+	newLoggerConfig().Panicw(msg, keysAndValues...)
 }

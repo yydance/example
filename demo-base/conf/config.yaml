@@ -6,9 +6,9 @@ server:
 
   # TODO: log rotation
   log:
-    level: "info"
-    error_path: "./logs/error.log"
-    access_path: "./logs/access.log"
+    level: "warn"
+    error_path: "/dev/stderr"
+    access_path: "/dev/stdout"
     max_size: 100
     max_age: 30
     max_backups: 3

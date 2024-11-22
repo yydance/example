@@ -20,9 +20,10 @@ var (
 	FiberConfig        FiberConf
 	ServerConfig       Server
 	CorsConfig         Cors
-	LogConfig          Log
 	Jwt                JWT
-	LogLevel           = "debug"
+	LogLevel           = "warn"
+	AccessLog          = "/dev/stdout"
+	ErrorLog           = "/dev/stderr"
 	Issuer             = "Damon Tech"
 	RolesPrefix        = ""
 	RoleGrantsPrefix   = ""
@@ -143,6 +144,12 @@ func setupConfig() {
 	if config.Server.Log.Level != "" {
 		LogLevel = config.Server.Log.Level
 	}
+	if config.Server.Log.AccessPath != "" {
+		AccessLog = config.Server.Log.AccessPath
+	}
+	if config.Server.Log.ErrorPath != "" {
+		ErrorLog = config.Server.Log.ErrorPath
+	}
 
 	config.Database.Etcd.DialTimeout = config.Database.Etcd.DialTimeout * time.Second
 	if config.Database.Etcd.Endpoints == nil {
@@ -167,7 +174,6 @@ func setupConfig() {
 	MysqlConfig = config.Database.Mysql
 	FiberConfig = config.Server.FiberConfig
 	CorsConfig = config.Server.Cors
-	LogConfig = config.Server.Log
 	ServerConfig = config.Server
 	Jwt = config.Server.JWT
 	RolesPrefix = EtcdConfig.Prefix + "/roles"

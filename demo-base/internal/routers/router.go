@@ -58,7 +58,7 @@ func InitRouter() *fiber.App {
 
 	app.Use(fiberzap.New(fiberzap.Config{
 		Fields: []string{"ip", "ips", "method", "protocol", "referer", "url", "route", "ua", "status", "latency", "bytesReceived", "bytesSent", "error", "requestId"},
-		Logger: logger.NewCustomLogger(),
+		Logger: logger.NewCustomLogger(logger.AccessLog),
 	}))
 	app.Use(healthcheck.New(healthcheck.Config{
 		LivenessEndpoint:  "/live",
