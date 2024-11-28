@@ -4,7 +4,7 @@ server:
     port: "8080"
   # api_key: "QPZXkYDY2cXG1vRKfIpwdqzBOpf4G1Zy"
 
-  # TODO: log rotation
+  # TODO: log rotation using lumberjack
   log:
     level: "warn"
     error_path: "/dev/stderr"

@@ -5,6 +5,8 @@ import (
 	"demo-base/internal/utils/jwt"
 	"demo-base/internal/utils/logger"
 	"errors"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginInput struct {
@@ -21,7 +23,8 @@ func (l *LoginInput) Login() (string, error) {
 	if !ok {
 		return "", errors.New("用户不存在")
 	}
-	if user.Password != l.Password {
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(l.Password))
+	if err != nil {
 		return "", errors.New("密码错误")
 	}
 	// 生成签名

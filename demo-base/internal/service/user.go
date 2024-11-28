@@ -8,6 +8,11 @@ import (
 	"errors"
 
 	"github.com/bytedance/sonic"
+	"golang.org/x/crypto/bcrypt"
+)
+
+const (
+	bcryptCost = 16
 )
 
 // Service is the interface for the service layer
@@ -39,10 +44,11 @@ func (u *UserInput) Create() error {
 		return errors.New("invalid input")
 	}
 
+	password, _ := bcrypt.GenerateFromPassword([]byte(u.Password), bcryptCost)
 	user := models.User{
 		Name:     u.Name,
 		Email:    u.Email,
-		Password: u.Password,
+		Password: string(password),
 		Roles:    u.Roles,
 	}
 
@@ -131,9 +137,10 @@ func (u *UserInput) Update() error {
 }
 
 func (u *UserPassword) UpdatePassword() error {
+	password, _ := bcrypt.GenerateFromPassword([]byte(u.Password), bcryptCost)
 	user := models.User{
 		Name:     u.Name,
-		Password: u.Password,
+		Password: string(password),
 	}
 	return user.UpdatePassword()
 }
@@ -228,9 +235,10 @@ func InitAdmin() {
 		logger.Info("init admin role success")
 	}
 	// create admin user
+	password, _ := bcrypt.GenerateFromPassword([]byte("admin0416"), bcryptCost)
 	admin := UserInput{
 		Name:     "admin",
-		Password: "admin0416",
+		Password: string(password),
 		Roles:    []string{"Admin"},
 		Email:    "admin@platform.com",
 	}
