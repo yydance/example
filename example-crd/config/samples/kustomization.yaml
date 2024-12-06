@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- k8sservice_v1alpha1_getservice.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

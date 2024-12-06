@@ -1,0 +1,23 @@
+# permissions for end users to view getservices.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: k8sservice-crd
+    app.kubernetes.io/managed-by: kustomize
+  name: getservice-viewer-role
+rules:
+- apiGroups:
+  - k8sservice.example.cn
+  resources:
+  - getservices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - k8sservice.example.cn
+  resources:
+  - getservices/status
+  verbs:
+  - get
