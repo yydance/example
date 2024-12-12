@@ -20,6 +20,7 @@ import (
 	"context"
 
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -59,6 +60,13 @@ func (r *GetServiceReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	err := r.Get(ctx, req.NamespacedName, &getSvc)
 
 	if err != nil {
+		if errors.IsNotFound(err) {
+			// Request object not found, could have been deleted after reconcile request.
+			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
+			// Return and don't requeue
+			ctrlLog.Info("GetService resource not found. Ignoring since object must be deleted", "name", req.NamespacedName)
+			return ctrl.Result{}, nil
+		}
 		return ctrl.Result{}, err
 	}
 	outputSvc, err := r.outputServiceList(ctx, getSvc.Spec.Namespace)
@@ -75,6 +83,9 @@ func (r *GetServiceReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	getSvc.Status.Status = metav1.StatusSuccess
 	getSvc.Status.Complated = true
+	if err := r.Status().Update(ctx, &getSvc); err != nil {
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }
@@ -134,29 +145,4 @@ func (r *GetServiceReconciler) outputServiceList(ctx context.Context, namespace 
 	}
 
 	return outputSvcList, nil
-}
-
-func (r *GetServiceReconciler) watchService(ctx context.Context, namespace string) error {
-	config := ctrl.GetConfigOrDie()
-	withWatch, err := client.NewWithWatch(config, client.Options{Scheme: r.Scheme})
-	if err != nil {
-		return err
-	}
-	go func() {
-		watch, err := withWatch.Watch(ctx, &k8sservicev1alpha1.GetServiceList{}, &client.ListOptions{Namespace: namespace})
-		if err != nil {
-			ctrlLog.Error(err, "unable to watch services")
-			return
-		}
-		select {
-		case <-ctx.Done():
-			watch.Stop()
-			return
-		case event := <-watch.ResultChan():
-			ctrlLog.Info("watch service event", "event", event.Type, "object", event.Object)
-			return
-		}
-	}()
-
-	return nil
 }

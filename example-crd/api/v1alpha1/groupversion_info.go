@@ -27,6 +27,7 @@ import (
 var (
 	// GroupVersion is group version used to register these objects.
 	GroupVersion = schema.GroupVersion{Group: "k8sservice.example.cn", Version: "v1alpha1"}
+	//kind = GroupVersion.WithKind("GetService")
 
 	// SchemeBuilder is used to add go types to the GroupVersionKind scheme.
 	SchemeBuilder = &scheme.Builder{GroupVersion: GroupVersion}

@@ -2,11 +2,10 @@ apiVersion: k8sservice.example.cn/v1alpha1
 kind: GetService
 metadata:
   labels:
-    app.kubernetes.io/name: k8sservice-crd
+    app.kubernetes.io/name: k8ssvc-crd
     app.kubernetes.io/managed-by: kustomize
-  name: getservice-sample
-  annotations:
-    app.k8s.io/namespace: default
+  name: getsvc-sample
+  namespace: test
 spec:
   # TODO(user): Add fields here
   namespace: kube-system
