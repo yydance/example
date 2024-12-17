@@ -110,5 +110,8 @@ make manifests
 make install
 ```
 
-### 
+### 自定义资源watch
+k8s 资源对象的watch是通过informer实现的，默认go api库里的informer watch的是既有的资源对象，对于自定义的crd资源对象的watch，需要先实现cache的informer，然后在informer上AddEventHandler。
+  
+需要注意，自定义的crd资源对象，在实现cache ListWatch时，需要使用支持非结构化(unstructured)的函数，否则会报错，这里使用cache.NewSharedInformer，而不是NewListWatchFromClient(只适用于原生资源对象structured)，详见watcher.go里InformerGetService。
 
