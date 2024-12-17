@@ -19,6 +19,8 @@ package controller
 import (
 	"context"
 
+	k8sservicev1alpha1 "example.cn/api/v1alpha1"
+	"example.cn/internal/pkg"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,9 +28,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	k8sservicev1alpha1 "example.cn/api/v1alpha1"
-	"example.cn/internal/pkg"
 )
 
 // GetServiceReconciler reconciles a GetService object
@@ -37,9 +36,11 @@ type GetServiceReconciler struct {
 	Scheme *runtime.Scheme
 }
 
+// 注意：rbac定义只能加在这里生效
 // +kubebuilder:rbac:groups=k8sservice.example.cn,resources=getservices,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8sservice.example.cn,resources=getservices/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=k8sservice.example.cn,resources=getservices/finalizers,verbs=update
+// +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -51,7 +52,7 @@ type GetServiceReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/reconcile
 
-var ctrlLog = log.Log
+var ctrlLog = log.Log.WithName("getservice controller")
 
 func (r *GetServiceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 

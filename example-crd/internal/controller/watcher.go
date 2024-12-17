@@ -11,13 +11,18 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch
 func WatchService(ctx context.Context, obj client.ObjectList, opts ...client.ListOption) error {
-	config := ctrl.GetConfigOrDie()
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		return err
+	}
 	withWatch, err := client.NewWithWatch(config, client.Options{})
 	if err != nil {
 		return err

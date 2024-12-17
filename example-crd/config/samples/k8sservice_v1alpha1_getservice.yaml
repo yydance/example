@@ -9,4 +9,3 @@ metadata:
     app.k8s.io/namespace: default
 spec:
   # TODO(user): Add fields here
-  namespace: kube-system
