@@ -1,8 +1,13 @@
 # k8sservice-crd
-// TODO(user): Add simple overview of use/purpose
-
+练习使用kubebuilder构建crd
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+验证基本流程，包含的功能：
+- 定义多版本api，编写controller的Reconcile逻辑
+- webhook，实现default和ValidateCreate、ValidateUpdate、ValidateDelete
+- 添加RBAC权限
+- 健康检查，healthz和readyz
+- metrics
+- TODO
 
 ## Getting Started
 
@@ -89,26 +94,21 @@ Users can just run kubectl apply -f <URL for YAML BUNDLE> to install the project
 kubectl apply -f https://raw.githubusercontent.com/<org>/k8sservice-crd/<tag or branch>/dist/install.yaml
 ```
 
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
+## NOTICE
 
-**NOTE:** Run `make help` for more information on all potential `make` targets
+### RBAC权限
+默认情况下，项目自动生成controller自身的RBAC权限，如果控制器中需要操作k8s其他资源对象，则需要手动添加对应的权限，方式如下：
+```internal/controller/getservice_controller.go
+// +kubebuilder:rbac:groups=k8sservice.example.cn,resources=getservices,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=k8sservice.example.cn,resources=getservices/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=k8sservice.example.cn,resources=getservices/finalizers,verbs=update
+// +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch
+```
+添加好注释后，生成crd资源
+```
+make manifests
+make install
+```
 
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
-
-## License
-
-Copyright 2024.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+### 
 

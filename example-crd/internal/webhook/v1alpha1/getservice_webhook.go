@@ -66,10 +66,9 @@ func (d *GetServiceCustomDefaulter) Default(ctx context.Context, obj runtime.Obj
 	if !ok {
 		return fmt.Errorf("expected an GetService object but got %T", obj)
 	}
-	getservicelog.Info("Defaulting for GetService", "name", getservice.GetName(), "namespace", getservice.Spec.Namespace)
+	getservicelog.Info("Defaulting for GetService", "name", getservice.GetName())
 
 	if getservice.Spec.Namespace == "" {
-		getservicelog.Info("Defaulting namespace for GetService", "namespace", d.Namespace)
 		getservice.Spec.Namespace = d.Namespace
 	}
 	// TODO(user): fill in your defaulting logic.
