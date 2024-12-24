@@ -39,6 +39,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	k8sservicev1alpha1 "example.cn/api/v1alpha1"
+	k8sservicev1beta1 "example.cn/api/v1beta1"
 	"example.cn/internal/controller"
 	// +kubebuilder:scaffold:imports
 )
@@ -51,6 +52,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	utilruntime.Must(k8sservicev1alpha1.AddToScheme(scheme))
+	utilruntime.Must(k8sservicev1beta1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -145,8 +147,9 @@ func main() {
 	}
 
 	if err = (&controller.GetServiceReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:  mgr.GetClient(),
+		Scheme:  mgr.GetScheme(),
+		Recoder: mgr.GetEventRecorderFor("getService-controller"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "GetService")
 		os.Exit(1)
@@ -155,6 +158,13 @@ func main() {
 	/*
 		if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 			if err = webhookk8sservicev1alpha1.SetupGetServiceWebhookWithManager(mgr); err != nil {
+				setupLog.Error(err, "unable to create webhook", "webhook", "GetService")
+				os.Exit(1)
+			}
+		}
+
+		if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+			if err = webhookk8sservicev1beta1.SetupGetServiceWebhookWithManager(mgr); err != nil {
 				setupLog.Error(err, "unable to create webhook", "webhook", "GetService")
 				os.Exit(1)
 			}
@@ -177,6 +187,7 @@ func main() {
 		defer cancel()
 		go controller.InformerGetService(ctx)
 	*/
+
 	go controller.WatchService(context.TODO(), &corev1.ServiceList{})
 
 	setupLog.Info("starting manager")

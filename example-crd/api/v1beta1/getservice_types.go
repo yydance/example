@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1alpha1
+package v1beta1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,19 +32,19 @@ type GetServiceSpec struct {
 	MatchStr  string `json:"matchStr,omitempty"`
 	GetAll    bool   `json:"getAll,omitempty"`
 	Namespace string `json:"namespace,omitempty"`
+	Action    string `json:"action,omitempty"`
 }
 
 // GetServiceStatus defines the observed state of GetService.
 type GetServiceStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	Complated bool   `json:"complated,omitempty"`
-	Status    string `json:"status,omitempty"` // metav1.StatusSuccess or metav1.StatusFailure
+	Completed bool   `json:"completed,omitempty"`
+	Status    string `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
-// +kubebuilder:storageversion
 
 // GetService is the Schema for the getservices API.
 type GetService struct {

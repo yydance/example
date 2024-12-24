@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -33,7 +34,8 @@ import (
 // GetServiceReconciler reconciles a GetService object
 type GetServiceReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme  *runtime.Scheme
+	Recoder record.EventRecorder
 }
 
 // 注意：rbac定义只能加在这里生效
@@ -41,6 +43,7 @@ type GetServiceReconciler struct {
 // +kubebuilder:rbac:groups=k8sservice.example.cn,resources=getservices/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=k8sservice.example.cn,resources=getservices/finalizers,verbs=update
 // +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch
+// +kubebuilder:rbac:groups=core,resources=events,verbs=create;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -82,10 +85,17 @@ func (r *GetServiceReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	*/
 	// TODO: 创建资源后，需要启动一个server deployment，该server服务对外提供service查询服务
 
-	getSvc.Status.Status = metav1.StatusSuccess
-	getSvc.Status.Complated = true
-	if err := r.Status().Update(ctx, &getSvc); err != nil {
-		return ctrl.Result{}, err
+	if getSvc.Status.Status == "" {
+		getSvc.Status.Status = metav1.StatusSuccess
+		getSvc.Status.Complated = true
+		if err := r.Status().Update(ctx, &getSvc); err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
+	if !getSvc.DeletionTimestamp.IsZero() {
+		r.Recoder.Eventf(&getSvc, corev1.EventTypeNormal, "Deleting", "Custom Resource %s is being deleted from the namespace %s", req.Name, req.NamespacedName)
+		return ctrl.Result{}, nil
 	}
 
 	return ctrl.Result{}, nil
