@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8ssvc-crd
     app.kubernetes.io/managed-by: kustomize
-  name: getsvc-sample
+  name: sample
   namespace: test
 spec:
   # TODO(user): Add fields here

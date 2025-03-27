@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/name: k8sservice-crd
     app.kubernetes.io/managed-by: kustomize
-  name: getservice-sample
+  name: sample
   annotations:
     app.k8s.io/namespace: default
 spec:
