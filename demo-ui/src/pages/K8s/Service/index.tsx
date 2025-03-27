@@ -3,7 +3,8 @@ import { Button, Modal, Form, Input, message, Select, Space } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable  from '@ant-design/pro-table';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import { listService, addService, removeService } from '@/services/k8s/service';
+import { listService, addService, removeService, updateService } from '@/services/k8s/service';
+import { render } from '@testing-library/react';
 
 // 获取service数据请求
 const fetchServiceData = async (params: {
@@ -58,11 +59,29 @@ const Service: React.FC = () => {
   const showModal = () => {
     setIsModalVisible(true);
   };
+  const [editingService, setEditingService] = useState<string | null>(null);
 
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
-      await createService(values);
+      //await createService(values);
+      const serviceData = {
+        name: values.name,
+        namespace: values.namespace || 'default',
+          type: values.type || 'ClusterIP',
+          ports: values.ports?.map((p: any) => ({
+            port: p.port,
+            targetPort: p.targetPort,
+            protocol: p.protocol || 'TCP',
+          })),
+          selector: values.selector,
+      };
+
+      if (editingService) {
+        await updateService(editingService, serviceData);
+      } else {
+        await createService(serviceData);
+      }
       form.resetFields();
       setIsModalVisible(false);
       // 重新加载表格数据
@@ -86,6 +105,28 @@ const Service: React.FC = () => {
       message.error(`删除失败:${error}`);
     }
   };
+  const handleView = (record: API.Service) => {
+    Modal.info({
+      title: '服务详情',
+      width: 800,
+      content: (
+        <pre>{JSON.stringify(record, null, 2)}</pre>
+      ),
+    });
+  };
+  // 添加编辑服务函数
+  const handleEdit = (record: API.Service) => {
+    form.setFieldsValue({
+      ...record,
+      ports: record.ports?.map(p => ({
+        port: p.port,
+        targetPort: p.targetPort,
+        protocol: p.protocol,
+      })),
+    });
+    setIsModalVisible(true);
+    setEditingService(record.name || null);
+  };
 
   const actionRef = React.useRef<any>();
 
@@ -93,19 +134,39 @@ const Service: React.FC = () => {
     {
       title: '名称',
       dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: '命名空间',
+      dataIndex: 'namespace',
+      key: 'namespace',
+      render: (namespace: string) => namespace || 'default',
     },
     {
       title: '类型',
       dataIndex: 'type',
+      key: 'type',
+      render: (type: string) => type || 'ClusterIP',
+    },
+    {
+      title: 'ClusterIP',
+      dataIndex: 'clusterIP',
+      key: 'clusterIP',
+    },
+    {
+      title: '端口',
+      dataIndex: 'ports',
+      key: 'ports',
+      render: (ports: any[]) => ports?.map(p => `${p.port}:${p.targetPort}/${p.protocol}`).join(', '),
     },
     {
       title: '操作',
-      valueType: 'option',
-      render: (_, record: API.Upstream) => (
+      key: 'action',
+      render: (_, record: any) => (
         <Space>
-          <a>查看</a>
-          <a>配置</a>
-          <a onClick={() => handleDelete(record.name)}>删除</a>
+          <a onClick={() => handleView(record)}>查看</a>
+          <a onClick={() => handleEdit(record)}>编辑</a>
+          <a onClick={() => handleDelete(record.metadata.name)}>删除</a>
         </Space>
       ),
     },
@@ -143,7 +204,7 @@ const Service: React.FC = () => {
       },
       {
         label: '命名空间',
-        name: 'type',
+        name: 'namespace',
         component: <Input placeholder="请输入" />,
       },
     ],
@@ -159,7 +220,7 @@ const Service: React.FC = () => {
         headerTitle=""
         actionRef={actionRef}
         rowKey="id"
-        search={searchConfig}
+        search={false}
         request={fetchServiceData}
         columns={columns}
         pagination={{

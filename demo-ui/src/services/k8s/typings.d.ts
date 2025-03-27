@@ -2,21 +2,25 @@
 declare namespace API {
 
   type Service = {
-    name: string;
+    name?: string;
     namespace?: string;
     labels?: { [key: string]: string};
     annotations?: { [key: string]: string};
     selector?: { [key: string]: string};
-    ports: Array<{
+    ports?: Array<{
         name?: string;
-        protocol: 'TCP' | 'UDP';
-        port: number;
+        protocol?: 'TCP' | 'UDP';
+        port?: number;
         targetPort?: number | string;
     }>;
-    type: 'ClusterIP' | 'NodePort' | 'LoadBalancer' | 'ExternalName';
+    type?: 'ClusterIP' | 'NodePort' | 'LoadBalancer' | 'ExternalName';
     clusterIP?: string;
     externalIPs?: string[];
     externalName?: string;
+    sessionAffinity?: 'None' | 'ClientIP';
+    externalTrafficPolicy?: 'Cluster' | 'Local';
+    internalTrafficPolicy?: 'Cluster' | 'Local';
+    ipFamilies?: string[];
   }
    
   type ServiceItem = {

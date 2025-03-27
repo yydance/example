@@ -44,3 +44,18 @@ export async function removeService(
   ...(options || {}),
     })
 }
+
+export async function updateService(
+  name: string,
+  body: API.Service,
+  options?: { [key: string]: any },
+  ) {
+  return request(`${API_BASE_URL}/service/${name}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+  ...(options || {}),
+  })
+}

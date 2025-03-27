@@ -31,6 +31,24 @@ export default [
     component: './Welcome',
   },
   {
+    name: 'k8s资源',
+    icon: 'kubernetes',
+    path: '/k8s/resources',
+    routes: [
+      {
+        path: '/k8s/resources/services',
+        name: 'Service',
+        component: './K8s/Service',
+      },
+      {
+        path: '/k8s/resources/deployments',
+        name: 'Deployment',
+        component: './K8s/Deployment',
+        hideInMenu: true,
+      },
+    ],
+  },
+  {
     name: 'lesson-list',
     icon: 'calendar',
     path: '/class',
@@ -47,25 +65,6 @@ export default [
     icon: 'database',
     path: '/upstream',
     component: './Upstream',
-  },
-  {
-    name: 'k8s资源',
-    icon: 'kubernetes',
-    path: '/k8s/resources',
-    routes: [
-      {
-        path: './services',
-        name: 'Service',
-        component: './k8s/Service',
-        icon: '',
-      },
-      {
-        path: './deployments',
-        name: 'Deployment',
-        component: './k8s/Deployment',
-        icon: '',
-      },
-    ]
   },
   {
     path: '/',
