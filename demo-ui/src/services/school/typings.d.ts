@@ -9,6 +9,7 @@ declare namespace API {
     st_id?: number;
     ass_st_id?: number;
     time_str?: string;
+    time_range?: [dayjs, dayjs],
   }
   type classItem = {
     class_btime?: string;

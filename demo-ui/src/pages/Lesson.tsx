@@ -1,13 +1,14 @@
-import { PageContainer } from '@ant-design/pro-components';
+import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { useIntl } from '@umijs/max';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Input, Card, message, Select, Button, DatePicker, Form, Row, Col } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ProTable  from '@ant-design/pro-table';
 import dayjs from 'dayjs';
 import { listClass } from '@/services/school/classInfo';
 
 const classStatus: { [key: string]: number } = {
+  'pages.lesson-list.class-status-text.0': 0,
   'pages.lesson-list.class-status-text.1': 1,
   'pages.lesson-list.class-status-text.2': 2,
   'pages.lesson-list.class-status-text.3': 3,
@@ -41,17 +42,18 @@ const fetchClassData = async (
 const Lesson: React.FC = () => {
   const intl = useIntl();
   const STORAGE_KEY = 'lesson_search_params';
+  const actionRef = useRef<any>();
   // 添加默认时间范围
   const defaultDateRange = [
     dayjs().startOf('day'),
     dayjs().endOf('day'),
   ];
   const { RangePicker } = DatePicker;
-  const [form] = Form.useForm();
+  const [form] = Form.useForm(); // 新增 action 引用
 
-  const [searchParams, setSearchParams] = useState<API.classQuery>({});
+  const [searchParams, setSearchParams] = useState<any>({});
   const [collapsed, setCollapsed] = useState(true);
-  const [dateRange, setDateRange] = useState(defaultDateRange);
+  const [_, setDateRange] = useState(defaultDateRange);
 
   // 初始化时读取存储的搜索参数
   useEffect(() => {
@@ -59,21 +61,45 @@ const Lesson: React.FC = () => {
     if (savedParams) {
       const params = JSON.parse(savedParams);
       if (params.time_range) {
-        params.time_range = params.time_range.map((t: string) => dayjs(t));
+        const dayjsDates = params.time_range.map((t: string) => dayjs(t));
+        setDateRange(dayjsDates);
+        form.setFieldsValue({ ...params, time_range: dayjsDates });
       }
       setSearchParams(params);
-      form.setFieldsValue(params);
+      //form.setFieldsValue(params);
+    } else {
+      // 处理默认时间范围
+      const defaultTimeStr = defaultDateRange
+        .map(t => t.format('YYYY-MM-DD'))
+        .join(',');
+      setSearchParams({ 
+        time_str: defaultTimeStr,
+        time_range: defaultDateRange 
+      });
+      form.setFieldsValue({ 
+        time_range: defaultDateRange,
+       });
     }
   }, []);
 
   const onFinish = (values: any) => {
-    const { current, page_size, ...restValues } = values;
-    values.time_range = dateRange;
+    // 直接从表单值获取时间范围
+    const { time_range, current, page_size, ...restValues } = values;
+    //values.time_range = dateRange;
     //console.log('表单值：',values);
     const timeRangeStr = values.time_range?.map((t: dayjs.Dayjs) => 
         t.format('YYYY-MM-DD')
       ).join(',') || '';
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(restValues));
+      // 更新存储参数时需要包含时间范围
+      const params = {
+        ...restValues,
+        time_str: timeRangeStr,
+      };
+      //localStorage.setItem(STORAGE_KEY, JSON.stringify(restValues));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        ...params,
+        time_range: time_range?.map((t: dayjs.Dayjs) => t.format('YYYY-MM-DD')) // 存储原始时间对象
+      }));
       setSearchParams({
         ...restValues,
         time_str: timeRangeStr
@@ -84,7 +110,7 @@ const Lesson: React.FC = () => {
     const currentValues = form.getFieldsValue();
     const storageValues = {
       ...currentValues,
-      time_range: dates?.map((t: any) => t.toISOString()) || []
+      time_range: dates?.map((t: any) => t.format('YYYY-MM-DD')) || []
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(storageValues));
     setDateRange(dates || defaultDateRange);
@@ -138,10 +164,6 @@ const Lesson: React.FC = () => {
     {
       title: 'pages.lesson-list.class-status',
       dataIndex: 'class_status',
-    },
-    {
-      title: 'pages.lesson-list.client-class-id',
-      dataIndex: 'client_class_id',
     },
     {
       title: 'pages.lesson-list.seat-num',
@@ -206,7 +228,6 @@ const Lesson: React.FC = () => {
     assistants: {show: true},
     student_list_url: {show: false},
     class_status: {show: false},
-    client_class_id: {show: false},
     seat_num: {show: false},
     folder_name: {show: false},
     folder_path: {show: false},
@@ -222,15 +243,9 @@ const Lesson: React.FC = () => {
   }
 
   const renderSearchBar = () => (
-    < div 
-    className="ant-pro-table-search" 
-    style={{ 
-      marginBottom: 16,
-      padding: 24,
-      background: '#fff',
-      border: '1px solid #f0f0f0',
-      borderRadius: 2
-    }}
+    <ProCard 
+      bordered
+      style={{ marginBottom: 16 }}
     >
       <Form form={form} onFinish={onFinish}>
         <Row gutter={16}>
@@ -242,12 +257,16 @@ const Lesson: React.FC = () => {
               defaultDateRange[1],
             ]}
             onChange={handleDateChange}
+            onKeyDown={(e) => e.key === 'Enter' && form.submit()}
           />
           </Form.Item>
         </Col>
         <Col span={6}>
             <Form.Item name="class_status" label={intl.formatMessage({ id: 'pages.lesson-list.class-status'})}>
-              <Select placeholder={intl.formatMessage({ id: 'pages.lesson-list.class-status.placeholder'})}>
+              <Select 
+                defaultValue={Object.values(classStatus)[0]}
+                onKeyDown={(e) => e.key === 'Enter' && form.submit()}
+              >
                 {Object.entries(classStatus).map(([label, value]) => (
                   <Select.Option key={value} value={value}>
                     {intl.formatMessage({ id: `${label}` })}
@@ -258,39 +277,55 @@ const Lesson: React.FC = () => {
           </Col>
           <Col span={6}>
             <Form.Item name="class_id" label={intl.formatMessage({ id: 'pages.lesson-list.class-id'})}>
-              <Input placeholder={intl.formatMessage({ id: 'pages.lesson-list.class-id.placeholder'})} allowClear />
+              <Input 
+                placeholder={intl.formatMessage({ id: 'pages.lesson-list.class-id.placeholder'})}
+                allowClear
+                onPressEnter={() => form.submit()}
+                />
             </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item name="course_id" label={intl.formatMessage({ id: 'pages.lesson-list.course-id'})}>
-              <Input placeholder={intl.formatMessage({ id: 'pages.lesson-list.course-id.placeholder'})} allowClear />
+              <Input 
+                placeholder={intl.formatMessage({ id: 'pages.lesson-list.course-id.placeholder'})}
+                allowClear 
+                onPressEnter={() => form.submit()}
+                />
             </Form.Item>
           </Col>
           <Col span={6}>
             <Form.Item name="school_uid" label={intl.formatMessage({ id: 'pages.lesson-list.school-uid'})}>
-              <Input placeholder={intl.formatMessage({ id: 'pages.lesson-list.school-uid.placeholder'})} allowClear />
+              <Input 
+                placeholder={intl.formatMessage({ id: 'pages.lesson-list.school-uid.placeholder'})} 
+                allowClear 
+                onPressEnter={() => form.submit()}
+                />
             </Form.Item>
           </Col>
           {!collapsed && (
           <>
             <Col span={6}>
               <Form.Item name="class_name" label={intl.formatMessage({ id: 'pages.lesson-list.class-name'})}>
-                <Input placeholder={intl.formatMessage({ id: 'pages.lesson-list.class-name.placeholder'})} allowClear />
+                <Input 
+                  placeholder={intl.formatMessage({ id: 'pages.lesson-list.class-name.placeholder'})} 
+                  allowClear 
+                  onPressEnter={() => form.submit()}/>
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item name="st_id" label={intl.formatMessage({ id: 'pages.lesson-list.st-id'})}>
-                <Input placeholder={intl.formatMessage({ id: 'pages.lesson-list.st-id.placeholder'})} allowClear />
+                <Input 
+                  placeholder={intl.formatMessage({ id: 'pages.lesson-list.st-id.placeholder'})} 
+                  allowClear 
+                  onPressEnter={() => form.submit()}/>
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item name="ass_st_id" label={intl.formatMessage({ id: 'pages.lesson-list.ass-st-id'})}>
-                <Input placeholder={intl.formatMessage({ id: 'pages.lesson-list.ass-st-id.placeholder'})} allowClear />
-              </Form.Item>
-            </Col>
-            <Col span={6}>
-              <Form.Item name="client_class_id" label={intl.formatMessage({ id: 'pages.lesson-list.client-class-id'})}>
-                <Input placeholder={intl.formatMessage({ id: 'pages.lesson-list.client-class-id.placeholder'})} allowClear />
+                <Input 
+                  placeholder={intl.formatMessage({ id: 'pages.lesson-list.ass-st-id.placeholder'})} 
+                  allowClear 
+                  onPressEnter={() => form.submit()}/>
               </Form.Item>
             </Col>
           </>
@@ -318,12 +353,19 @@ const Lesson: React.FC = () => {
               type="primary"
               htmlType="submit"
               style={{ marginRight: 8 }}
+              onClick={() => {
+                form.submit();
+                actionRef.current?.reload();
+              }}
             >
               {intl.formatMessage({ id: 'component.tagSearch.search' })}
             </Button>
             <Button onClick={() => {
               form.resetFields();
-              setSearchParams({});
+              form.setFieldsValue({ 
+                time_range: defaultDateRange,
+                class_status: Object.values(classStatus)[0] // 重置选择器默认值
+              });
               localStorage.removeItem(STORAGE_KEY);
             }}>
               {intl.formatMessage({ id: 'component.tagSearch.reset' })}
@@ -331,13 +373,14 @@ const Lesson: React.FC = () => {
           </Col>
         </Row>
       </Form>
-    </div>
+    </ProCard>
   );
 
   return (
     <PageContainer header={{ title: false }}>
       {renderSearchBar()}
       <ProTable 
+        actionRef={actionRef}
         columns={columns.map(column => ({
           ...column,
           title: intl.formatMessage({ id: column.title }),
@@ -348,10 +391,11 @@ const Lesson: React.FC = () => {
           persistenceType: 'localStorage',
         }}
         request={async () => {
-          // 转换分页参数
-          //const { current: page = 1, page_size = 20 } = params;
+          const { time_range, ...filteredParams } = searchParams;
+          // 确保携带时间参数
           return fetchClassData({
-            ...searchParams
+            ...filteredParams,
+            time_str: searchParams.time_str || '',
           });
         }}
         rowKey="class_id"
