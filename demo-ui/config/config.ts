@@ -51,7 +51,12 @@ export default defineConfig({
   theme: {
     // 如果不想要 configProvide 动态设置主题需要把这个设置为 default
     // 只有设置为 variable， 才能使用 configProvide 动态设置主色调
-    'root-entry-name': 'variable',
+    //'root-entry-name': 'variable',
+    //'@menu-dark-item-active-bg': '#001529', // 激活项背景色（可选）
+    //'@menu-dark-item-hover-bg': '#001529', // 悬浮背景色（可选）
+    //'@menu-dark-selected-item-text-color': '#fff', // 选中文字颜色
+   // '@menu-dark-item-text-color': '#fff', // 默认文字颜色
+    //'@menu-dark-submenu-item-text-color': '#fff', // 子菜单文字颜色
   },
   /**
    * @name moment 的国际化配置

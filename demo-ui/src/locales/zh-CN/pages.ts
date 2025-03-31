@@ -98,6 +98,7 @@ export default {
   'pages.lesson-list.addtime': '添加时间',
   'pages.lesson-list.record-url': '录制URL',
   'pages.lesson-list.search.time-range': '时间段',
+  'pages.lesson-list.class-status-text.0': '请选择',
   'pages.lesson-list.class-status-text.1': '还没开课',
   'pages.lesson-list.class-status-text.2': '正在上课',
   'pages.lesson-list.class-status-text.3': '上课结束',

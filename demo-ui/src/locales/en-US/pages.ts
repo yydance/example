@@ -101,6 +101,7 @@ export default {
   'pages.lesson-list.addtime': 'add time',
   'pages.lesson-list.record-url': 'record url',
   'pages.lesson-list.search.time-range': 'time range',
+  'pages.lesson-list.class-status-text.0': 'please select',
   'pages.lesson-list.class-status-text.1': 'not started',
   'pages.lesson-list.class-status-text.2': 'in progress',
   'pages.lesson-list.class-status-text.3': 'finished',
