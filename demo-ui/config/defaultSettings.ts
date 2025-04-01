@@ -28,10 +28,10 @@ const Settings: ProLayoutProps & {
       colorMenuItemDivider: '#fff',
       colorTextCollapsedButtonHover: '#9933cc',
       colorTextMenuSecondary: '#fff',
-      colorTextCollapsedButton: '#fff',
+      colorTextCollapsedButton: '#000',
       colorMenuBackground: '#003066',
       // 修改为已知属性 colorBgMenuItemCollapsedElevated
-      colorBgMenuItemCollapsedElevated: '#001529',
+      //colorBgMenuItemCollapsedElevated: '#001529',
       colorTextMenu: '#fff',
       colorTextMenuSelected: '#fff',
       colorTextMenuActive: '#fff',
